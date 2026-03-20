@@ -45,8 +45,6 @@
   const markers = [];
   const routeSegments = [];
   const segmentArrows = [];
-  const ROUTING_API_BASE = "https://router.project-osrm.org/route/v1/driving";
-  const nearestPointCache = new Map();
   const routeGeometryCache = new Map();
   const ROUTE_CACHE_PREFIX = "iceland-route-geometry-v1:";
 
@@ -97,63 +95,27 @@
       return cachedGeometry;
     }
 
-    const snappedFrom = await fetchNearestDrivablePoint(fromStop);
-    const snappedTo = await fetchNearestDrivablePoint(toStop);
-    const coordinates = `${snappedFrom.lng},${snappedFrom.lat};${snappedTo.lng},${snappedTo.lat}`;
-    const url = `${ROUTING_API_BASE}/${coordinates}?overview=full&geometries=geojson`;
-
     try {
+      const url = new URL("/api/route", window.location.origin);
+      url.searchParams.set("fromLat", String(fromStop.lat));
+      url.searchParams.set("fromLng", String(fromStop.lng));
+      url.searchParams.set("toLat", String(toStop.lat));
+      url.searchParams.set("toLng", String(toStop.lng));
       const response = await fetch(url);
       if (!response.ok) {
         return null;
       }
 
       const data = await response.json();
-      const route = data && data.routes && data.routes[0];
-      if (!route || !route.geometry || !Array.isArray(route.geometry.coordinates)) {
+      if (!data || !Array.isArray(data.latLngs) || data.latLngs.length < 2) {
         return null;
       }
 
-      const latLngs = route.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+      const latLngs = data.latLngs;
       writeCachedRouteGeometry(cacheKey, latLngs);
       return latLngs;
     } catch (_error) {
       return null;
-    }
-  }
-
-  async function fetchNearestDrivablePoint(stop) {
-    const cacheKey = `${stop.lat},${stop.lng}`;
-    if (nearestPointCache.has(cacheKey)) {
-      return nearestPointCache.get(cacheKey);
-    }
-
-    const url = `https://router.project-osrm.org/nearest/v1/driving/${stop.lng},${stop.lat}?number=1`;
-
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        nearestPointCache.set(cacheKey, stop);
-        return stop;
-      }
-
-      const data = await response.json();
-      const waypoint = data && data.waypoints && data.waypoints[0];
-      if (!waypoint || !Array.isArray(waypoint.location)) {
-        nearestPointCache.set(cacheKey, stop);
-        return stop;
-      }
-
-      const snappedStop = {
-        ...stop,
-        lng: waypoint.location[0],
-        lat: waypoint.location[1]
-      };
-      nearestPointCache.set(cacheKey, snappedStop);
-      return snappedStop;
-    } catch (_error) {
-      nearestPointCache.set(cacheKey, stop);
-      return stop;
     }
   }
 
