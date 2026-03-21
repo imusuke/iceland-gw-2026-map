@@ -383,14 +383,12 @@
     if (stop.wikiTitle) {
       links.push(`<a class="map-tooltip-link" href="https://en.wikipedia.org/wiki/${stop.wikiTitle}" target="_blank" rel="noreferrer">写真と概要</a>`);
     }
-    const navHtml = state.stepModeEnabled
-      ? `
-        <div class="map-tooltip-nav">
-          <button type="button" class="map-control-button" data-step-nav="prev" ${index === 0 ? "disabled" : ""}>戻る</button>
-          <button type="button" class="map-control-button" data-step-nav="next" ${index === routeStops.length - 1 ? "disabled" : ""}>次へ</button>
-        </div>
-      `
-      : "";
+    const navHtml = `
+      <div class="map-tooltip-nav">
+        <button type="button" class="map-control-button" data-step-nav="prev" ${index === 0 ? "disabled" : ""}>戻る</button>
+        <button type="button" class="map-control-button" data-step-nav="next" ${index === routeStops.length - 1 ? "disabled" : ""}>次へ</button>
+      </div>
+    `;
 
     return [
       '<div class="map-tooltip">',
@@ -749,6 +747,26 @@
     focusCurrentStep();
   }
 
+  function moveSpot(delta) {
+    const baseIndex = state.stepModeEnabled ? state.currentStepIndex : state.activeSpotIndex;
+    if (!Number.isInteger(baseIndex)) {
+      return;
+    }
+
+    const nextIndex = baseIndex + delta;
+    if (nextIndex < 0 || nextIndex >= routeStops.length) {
+      return;
+    }
+
+    if (state.stepModeEnabled) {
+      moveStep(delta);
+      return;
+    }
+
+    loadPhotoForStop(routeStops[nextIndex], nextIndex);
+    showSpotDetails(nextIndex);
+  }
+
   function toggleStepMode() {
     state.stepModeEnabled = !state.stepModeEnabled;
     elements.stepModeToggle.textContent = state.stepModeEnabled ? "Close Guide" : "Guide";
@@ -776,11 +794,11 @@
     stepOverlay.addEventListener("click", (event) => {
       event.stopPropagation();
       const navButton = event.target.closest("[data-step-nav]");
-      if (navButton && state.stepModeEnabled) {
+      if (navButton) {
         if (navButton.dataset.stepNav === "prev") {
-          moveStep(-1);
+          moveSpot(-1);
         } else if (navButton.dataset.stepNav === "next") {
-          moveStep(1);
+          moveSpot(1);
         }
         return;
       }
