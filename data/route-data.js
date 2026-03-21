@@ -5,7 +5,7 @@ window.ICELAND_TRIP_DATA = {
     {
       day: "4/30",
       filterDay: "4/30",
-      name: "ケプラヴィーク国際空港",
+      name: "Keflavíkurflugvöllur（ケプラヴィーク国際空港）",
       lat: 63.985,
       lng: -22.6056,
       note: "07:50着。レンタカーを受け取って、そのままレイキャビクへ向かいます。",
@@ -24,7 +24,7 @@ window.ICELAND_TRIP_DATA = {
     {
       day: "4/30 宿泊",
       filterDay: "4/30",
-      name: "Hotel Reykjavik Marina",
+      name: "Hotel Reykjavík Marina（ホテル・レイキャヴィーク・マリーナ）",
       lat: 64.150663,
       lng: -21.951847,
       note: "旧港エリアの Hotel Reykjavik Marina に宿泊。昼は市内カフェ、夜は Forrettabarinn 候補です。",
@@ -43,7 +43,7 @@ window.ICELAND_TRIP_DATA = {
     {
       day: "5/1",
       filterDay: "5/1",
-      name: "シンクヴェトリル国立公園",
+      name: "Þingvellir þjóðgarður（シンクヴェトリル国立公園）",
       lat: 64.2559,
       lng: -21.129,
       note: "ゴールデンサークル最初の見どころ。地形と湖の広がりを押さえる場所です。",
@@ -62,7 +62,7 @@ window.ICELAND_TRIP_DATA = {
     {
       day: "5/1",
       filterDay: "5/1",
-      name: "ゲイシール",
+      name: "Geysir（ゲイシール）",
       lat: 64.31,
       lng: -20.3024,
       note: "Strokkur の噴出が主役の地熱エリアです。",
@@ -81,7 +81,7 @@ window.ICELAND_TRIP_DATA = {
     {
       day: "5/1",
       filterDay: "5/1",
-      name: "グトルフォス",
+      name: "Gullfoss（グトルフォス）",
       lat: 64.3271,
       lng: -20.1218,
       note: "ゴールデンサークルを代表する滝。上と下で印象が大きく変わります。",
@@ -100,7 +100,7 @@ window.ICELAND_TRIP_DATA = {
     {
       day: "5/1 宿泊",
       filterDay: "5/1",
-      name: "Kviholmi Premium Apartments",
+      name: "Kviholmi Premium Apartments（クヴィホルミ・プレミアム・アパートメンツ）",
       lat: 63.6156,
       lng: -20.047,
       note: "セリャラントスフォス周辺の宿。夜は自炊予定です。",
@@ -119,7 +119,7 @@ window.ICELAND_TRIP_DATA = {
     {
       day: "5/2",
       filterDay: "5/2",
-      name: "セリャラントスフォス",
+      name: "Seljalandsfoss（セリャラントスフォス）",
       lat: 63.6156,
       lng: -19.9917,
       note: "朝に寄る滝。裏側に回れるのが最大の見どころです。",
@@ -138,7 +138,7 @@ window.ICELAND_TRIP_DATA = {
     {
       day: "5/2",
       filterDay: "5/2",
-      name: "スコゥガフォス",
+      name: "Skógafoss（スコゥガフォス）",
       lat: 63.5321,
       lng: -19.5114,
       note: "南海岸ドライブの定番滝。下からも上からも見応えがあります。",
@@ -157,7 +157,7 @@ window.ICELAND_TRIP_DATA = {
     {
       day: "5/2",
       filterDay: "5/2",
-      name: "フャズラオルグリューブル峡谷",
+      name: "Fjaðrárgljúfur（フャズラオルグリューブル峡谷）",
       lat: 63.7711,
       lng: -18.1719,
       note: "峡谷を上から見下ろす絶景が主役のスポットです。",
@@ -176,7 +176,7 @@ window.ICELAND_TRIP_DATA = {
     {
       day: "5/2 宿泊",
       filterDay: "5/2",
-      name: "Fosshotel Glacier Lagoon",
+      name: "Fosshotel Glacier Lagoon（フォスホテル・グレイシャー・ラグーン）",
       lat: 63.9765,
       lng: -16.4088,
       note: "朝食付きホテル。翌日の氷河歩きに備える前泊拠点です。",
@@ -195,7 +195,7 @@ window.ICELAND_TRIP_DATA = {
     {
       day: "5/3",
       filterDay: "5/3",
-      name: "スカフタフェットル 氷河歩き",
+      name: "Skaftafell jökulganga（スカフタフェットル氷河歩き）",
       lat: 64.0155,
       lng: -16.9665,
       note: "9:30発の氷河歩きツアー。今回の旅のハイライトのひとつです。",
@@ -214,7 +214,7 @@ window.ICELAND_TRIP_DATA = {
     {
       day: "5/3",
       filterDay: "5/3",
-      name: "ヨークルスアゥルロゥン氷河湖",
+      name: "Jökulsárlón（ヨークルスアゥルロゥン氷河湖）",
       lat: 64.0489,
       lng: -16.1792,
       note: "氷河湖と Diamond Beach をセットで歩きたいスポットです。",
@@ -233,7 +233,7 @@ window.ICELAND_TRIP_DATA = {
     {
       day: "5/3 宿泊",
       filterDay: "5/3",
-      name: "Vik Apartments",
+      name: "Vík Apartments（ヴィーク・アパートメンツ）",
       lat: 63.4186,
       lng: -19.006,
       note: "ヴィークで自炊泊。長い移動日の締めの宿です。",
@@ -252,7 +252,7 @@ window.ICELAND_TRIP_DATA = {
     {
       day: "5/4",
       filterDay: "5/4",
-      name: "Rey Apartments",
+      name: "Rey Apartments（レイ・アパートメンツ）",
       lat: 64.1452,
       lng: -21.9177,
       note: "市内散策日の宿。夜は 18:00 に Skál! を予約済みです。",
@@ -271,7 +271,7 @@ window.ICELAND_TRIP_DATA = {
     {
       day: "5/5",
       filterDay: "5/5",
-      name: "ケプラヴィーク国際空港へ移動",
+      name: "Keflavíkurflugvöllur へ移動（ケプラヴィーク国際空港）",
       lat: 63.985,
       lng: -22.6056,
       note: "早朝に空港へ。08:35発の便で出国します。",

@@ -383,6 +383,14 @@
     if (stop.wikiTitle) {
       links.push(`<a class="map-tooltip-link" href="https://en.wikipedia.org/wiki/${stop.wikiTitle}" target="_blank" rel="noreferrer">写真と概要</a>`);
     }
+    const navHtml = state.stepModeEnabled
+      ? `
+        <div class="map-tooltip-nav">
+          <button type="button" class="map-control-button" data-step-nav="prev" ${index === 0 ? "disabled" : ""}>戻る</button>
+          <button type="button" class="map-control-button" data-step-nav="next" ${index === routeStops.length - 1 ? "disabled" : ""}>次へ</button>
+        </div>
+      `
+      : "";
 
     return [
       '<div class="map-tooltip">',
@@ -434,6 +442,7 @@
       '</div>',
       `<div class="map-tooltip-meta-grid">${timeHtml}${distanceHtml}</div>`,
       `<div class="map-tooltip-links">${links.join("")}</div>`,
+      navHtml,
       '</div>',
       '</div>',
       "</div>"
@@ -456,10 +465,15 @@
     const placeOnBottom = point.y < mapSize.y * 0.5;
     const placeLeft = point.x > mapSize.x * 0.62;
     const placeRight = point.x < mapSize.x * 0.38;
+    const horizontalMargin = 32;
+    const verticalMargin = 32;
     let overlayWidth = Math.max(760, Math.min(1120, mapSize.x - 260));
 
     if (placeLeft || placeRight) {
-      overlayWidth = Math.max(620, Math.min(880, Math.floor(mapSize.x * 0.56)));
+      const availableWidth = placeLeft
+        ? point.x - horizontalMargin
+        : mapSize.x - point.x - horizontalMargin;
+      overlayWidth = Math.max(520, Math.min(880, availableWidth));
     }
 
     stepOverlay.classList.remove(
@@ -476,7 +490,8 @@
     }
 
     stepOverlay.classList.add(placeOnBottom ? "step-overlay-bottom" : "step-overlay-top");
-    stepOverlay.style.width = `${overlayWidth}px`;
+    stepOverlay.style.width = `${Math.max(320, overlayWidth)}px`;
+    stepOverlay.style.maxHeight = `${Math.max(280, mapSize.y - verticalMargin)}px`;
     stepOverlay.innerHTML = buildTooltipHtml(entry.stop, index);
     stepOverlay.classList.remove("hidden");
     state.activeSpotIndex = index;
@@ -491,6 +506,7 @@
       "step-overlay-bottom"
     );
     stepOverlay.style.width = "";
+    stepOverlay.style.maxHeight = "";
     stepOverlay.innerHTML = "";
   }
 
@@ -759,6 +775,16 @@
     elements.stepModeToggle.addEventListener("click", toggleStepMode);
     stepOverlay.addEventListener("click", (event) => {
       event.stopPropagation();
+      const navButton = event.target.closest("[data-step-nav]");
+      if (navButton && state.stepModeEnabled) {
+        if (navButton.dataset.stepNav === "prev") {
+          moveStep(-1);
+        } else if (navButton.dataset.stepNav === "next") {
+          moveStep(1);
+        }
+        return;
+      }
+
       if (!state.stepModeEnabled) {
         hideSpotDetails();
       }
