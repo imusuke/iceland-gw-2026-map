@@ -440,20 +440,8 @@
     ].join("");
   }
 
-  function closeAllPopups() {
-    markers.forEach(({ marker }) => {
-      if (marker.closePopup) {
-        marker.closePopup();
-      }
-    });
-    if (map.closePopup) {
-      map.closePopup();
-    }
-  }
-
   function hideSpotDetails() {
     state.activeSpotIndex = null;
-    closeAllPopups();
     hideStepOverlay();
   }
 
@@ -506,7 +494,7 @@
     stepOverlay.innerHTML = "";
   }
 
-  function showSpotDetails(index, options = {}) {
+  function showSpotDetails(index) {
     hideSpotDetails();
     showStepOverlay(index);
   }
@@ -614,8 +602,7 @@
         "</div>"
       ].join(""),
       iconSize: [36, 36],
-      iconAnchor: [18, 18],
-      popupAnchor: [offset ? offset.x : 0, (offset ? offset.y : 0) - 14]
+      iconAnchor: [18, 18]
     });
   }
 
@@ -641,9 +628,7 @@
         }
 
         loadPhotoForStop(stop, index);
-        showSpotDetails(index, { mode: "overlay" });
-      });
-      marker.on("popupclose", () => {
+        showSpotDetails(index);
       });
 
       markers.push({ marker, stop, index });
@@ -734,7 +719,7 @@
     }
 
     loadPhotoForStop(current.stop, state.currentStepIndex);
-    showSpotDetails(state.currentStepIndex, { mode: "overlay" });
+    showSpotDetails(state.currentStepIndex);
   }
 
   function moveStep(delta) {
