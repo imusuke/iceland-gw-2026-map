@@ -1,0 +1,7 @@
+{
+  "name": "iceland-trip",
+  "private": true,
+  "dependencies": {
+    "@vercel/functions": "^2.2.12"
+  }
+}
