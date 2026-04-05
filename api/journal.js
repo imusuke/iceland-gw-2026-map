@@ -1,4 +1,5 @@
 import { authorizeBasicRequest } from "../lib/basic-auth.js";
+import { getRequestUrl, toWebRequest } from "../lib/request-utils.js";
 import {
   JOURNAL_BLOB_ACCESS,
   JOURNAL_MAX_COMMENT_LENGTH,
@@ -57,7 +58,7 @@ export default async function handler(request) {
 }
 
 async function handleListRequest(request) {
-  const { searchParams } = new URL(request.url);
+  const { searchParams } = new URL(getRequestUrl(request));
   const spotId = normalizeSpotId(searchParams.get("spotId"));
   if (!spotId) {
     return jsonResponse({ code: "invalid_spot", error: "Spot is invalid" }, 400);
@@ -83,9 +84,10 @@ async function handleListRequest(request) {
 
 async function handleCreateRequest(request) {
   let formData;
+  const webRequest = await toWebRequest(request);
 
   try {
-    formData = await request.formData();
+    formData = await webRequest.formData();
   } catch {
     return jsonResponse({ code: "invalid_form_data", error: "Request body is invalid" }, 400);
   }
@@ -152,9 +154,10 @@ async function handleCreateRequest(request) {
 
 async function handleUpdateRequest(request) {
   let formData;
+  const webRequest = await toWebRequest(request);
 
   try {
-    formData = await request.formData();
+    formData = await webRequest.formData();
   } catch {
     return jsonResponse({ code: "invalid_form_data", error: "Request body is invalid" }, 400);
   }
@@ -225,9 +228,10 @@ async function handleUpdateRequest(request) {
 
 async function handleDeleteRequest(request) {
   let body;
+  const webRequest = await toWebRequest(request);
 
   try {
-    body = await request.json();
+    body = await webRequest.json();
   } catch {
     return jsonResponse({ code: "invalid_json", error: "Request body is invalid" }, 400);
   }

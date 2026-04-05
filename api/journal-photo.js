@@ -1,4 +1,5 @@
 import { authorizeBasicRequest } from "../lib/basic-auth.js";
+import { getRequestHeader, getRequestUrl } from "../lib/request-utils.js";
 import {
   JOURNAL_BLOB_ACCESS,
   getJournalPhoto,
@@ -25,7 +26,7 @@ export default async function handler(request) {
     return jsonResponse({ code: "method_not_allowed", error: "Method not allowed" }, 405);
   }
 
-  const { searchParams } = new URL(request.url);
+  const { searchParams } = new URL(getRequestUrl(request));
   const pathname = searchParams.get("pathname") || "";
   if (!pathname) {
     return jsonResponse({ code: "missing_pathname", error: "Pathname is required" }, 400);
@@ -34,7 +35,7 @@ export default async function handler(request) {
   try {
     const result = await getJournalPhoto(
       pathname,
-      request.headers.get("if-none-match")
+      getRequestHeader(request, "if-none-match")
     );
 
     if (!result) {
