@@ -146,6 +146,12 @@
     const summary = createElement("p", "spot-summary", stop.note);
     const detailLabel = createElement("p", "content-kicker", "成り立ちと見どころ");
     const detail = createElement("p", "spot-detail-copy", stop.stepHtml || stop.note);
+    const terrainLabel = stop.terrainHtml
+      ? createElement("p", "content-kicker", "地形の形成")
+      : null;
+    const terrain = stop.terrainHtml
+      ? createElement("p", "spot-detail-copy", stop.terrainHtml)
+      : null;
     const historyLabel = stop.historyHtml
       ? createElement("p", "content-kicker", "歴史の背景")
       : null;
@@ -175,6 +181,9 @@
     }
 
     content.append(summaryLabel, summary, detailLabel, detail);
+    if (terrainLabel && terrain) {
+      content.append(terrainLabel, terrain);
+    }
     if (historyLabel && history) {
       content.append(historyLabel, history);
     }
