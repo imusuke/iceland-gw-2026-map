@@ -2,6 +2,7 @@
   "name": "iceland-trip",
   "private": true,
   "dependencies": {
+    "@vercel/blob": "^2.3.3",
     "@vercel/functions": "^2.2.12"
   }
 }
