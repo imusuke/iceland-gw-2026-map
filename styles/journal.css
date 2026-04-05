@@ -16,6 +16,65 @@
   padding: 14px;
 }
 
+.spot-journal-disclosure {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.spot-journal-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(14, 116, 144, 0.12);
+  background: rgba(255, 255, 255, 0.74);
+  cursor: pointer;
+  list-style: none;
+}
+
+.spot-journal-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.spot-journal-toggle-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.spot-journal-toggle-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--ink, #172a3a);
+}
+
+.spot-journal-toggle-note {
+  color: var(--ui-muted, #5b6b73);
+  line-height: 1.55;
+}
+
+.spot-journal-toggle-badge {
+  flex: 0 0 auto;
+  min-width: 4.75rem;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(14, 116, 144, 0.08);
+  color: var(--ui-accent-strong, var(--ui-accent, #155e75));
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.spot-journal-mount {
+  display: grid;
+}
+
+.spot-journal-mount > .spot-journal {
+  margin-top: 0;
+}
+
 .spot-journal-header {
   display: grid;
   gap: 6px;
@@ -321,6 +380,15 @@
 }
 
 @media (max-width: 760px) {
+  .spot-journal-toggle {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .spot-journal-toggle-badge {
+    width: 100%;
+  }
+
   .journal-form-grid,
   .journal-entry {
     grid-template-columns: 1fr;

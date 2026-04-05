@@ -32,6 +32,8 @@
   const loadReferencePhoto = typeof shared.loadReferencePhoto === "function"
     ? shared.loadReferencePhoto
     : async (stop) => stop.photoUrl || "";
+  const supportsIntersectionObserver = typeof window.IntersectionObserver === "function";
+  let photoObserver = null;
   const elements = {
     tripPeriod: document.getElementById("trip-period"),
     spotCount: document.getElementById("spot-count"),
@@ -95,6 +97,32 @@
     container.append(item);
   }
 
+  function ensurePhotoObserver() {
+    if (!supportsIntersectionObserver) {
+      return null;
+    }
+
+    if (!photoObserver) {
+      photoObserver = new window.IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            return;
+          }
+
+          observer.unobserve(entry.target);
+          if (typeof entry.target.__loadReferencePhoto === "function") {
+            entry.target.__loadReferencePhoto();
+            delete entry.target.__loadReferencePhoto;
+          }
+        });
+      }, {
+        rootMargin: "240px 0px"
+      });
+    }
+
+    return photoObserver;
+  }
+
   function createPhotoFrame(stop) {
     const frame = createElement("figure", "spot-figure");
     const image = createElement("img", "spot-image");
@@ -112,19 +140,40 @@
       return frame;
     }
 
-    loadReferencePhoto(stop)
-      .then((photoUrl) => {
-        if (!photoUrl) {
-          frame.classList.add("is-empty");
-          return;
-        }
+    const startLoadingPhoto = () => {
+      if (frame.dataset.photoState === "loading" || frame.dataset.photoState === "ready") {
+        return;
+      }
 
-        image.src = photoUrl;
-        image.classList.add("is-ready");
-      })
-      .catch(() => {
-        frame.classList.add("is-empty");
-      });
+      frame.dataset.photoState = "loading";
+
+      loadReferencePhoto(stop)
+        .then((photoUrl) => {
+          if (!photoUrl) {
+            frame.dataset.photoState = "empty";
+            frame.classList.add("is-empty");
+            return;
+          }
+
+          image.src = photoUrl;
+          image.classList.add("is-ready");
+          frame.dataset.photoState = "ready";
+        })
+        .catch(() => {
+          frame.dataset.photoState = "empty";
+          frame.classList.add("is-empty");
+        });
+    };
+
+    frame.dataset.photoState = "idle";
+    frame.__loadReferencePhoto = startLoadingPhoto;
+
+    const observer = ensurePhotoObserver();
+    if (observer) {
+      observer.observe(frame);
+    } else {
+      startLoadingPhoto();
+    }
 
     return frame;
   }
@@ -141,17 +190,48 @@
   }
 
   function buildJournalSection(stop, index) {
-    if (typeof journalUi.createJournalSection !== "function") {
-      return createFallbackJournalSection();
-    }
+    const disclosure = createElement("details", "spot-journal-disclosure");
+    const summary = createElement("summary", "spot-journal-toggle");
+    const summaryCopy = createElement("span", "spot-journal-toggle-copy");
+    const title = createElement("span", "spot-journal-toggle-title", "旅の記録");
+    const note = createElement("span", "spot-journal-toggle-note", "開いたときにだけ読み込みます。");
+    const badge = createElement("span", "spot-journal-toggle-badge", "開く");
+    const mount = createElement("div", "spot-journal-mount");
+    let mounted = false;
 
-    return journalUi.createJournalSection({
-      stop,
-      index,
-      itineraryStart,
-      buildSpotId,
-      variant: "default"
+    summaryCopy.append(title, note);
+    summary.append(summaryCopy, badge);
+    disclosure.append(summary, mount);
+
+    const mountJournal = () => {
+      if (mounted) {
+        return;
+      }
+
+      mounted = true;
+
+      if (typeof journalUi.createJournalSection !== "function") {
+        mount.append(createFallbackJournalSection());
+        return;
+      }
+
+      mount.append(journalUi.createJournalSection({
+        stop,
+        index,
+        itineraryStart,
+        buildSpotId,
+        variant: "default"
+      }));
+    };
+
+    disclosure.addEventListener("toggle", () => {
+      badge.textContent = disclosure.open ? "閉じる" : "開く";
+      if (disclosure.open) {
+        mountJournal();
+      }
     });
+
+    return disclosure;
   }
 
   function createSpotCard(stop, index) {
