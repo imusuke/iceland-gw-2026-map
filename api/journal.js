@@ -1,5 +1,5 @@
 import { authorizeBasicRequest } from "../lib/basic-auth.js";
-import { getRequestUrl, toWebRequest } from "../lib/request-utils.js";
+import { sendWebResponse, toWebRequest } from "../lib/request-utils.js";
 import {
   JOURNAL_BLOB_ACCESS,
   JOURNAL_MAX_COMMENT_LENGTH,
@@ -13,83 +13,85 @@ import {
   updateJournalEntry
 } from "../lib/journal-store.js";
 
-export default async function handler(request) {
+export default async function handler(request, response) {
   const auth = authorizeBasicRequest(request);
   if (!auth.ok) {
-    return auth.response;
+    await sendWebResponse(response, auth.response);
+    return;
   }
 
+  response.setHeader("Cache-Control", "no-store");
+  response.setHeader("Access-Control-Allow-Origin", "*");
+  response.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
+  response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+
   if (request.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        Allow: "GET, POST, PATCH, DELETE, OPTIONS"
-      }
-    });
+    response.status(204).end();
+    return;
   }
 
   if (!isJournalStorageConfigured()) {
-    return jsonResponse(
-      {
-        code: "storage_not_configured",
-        error: "Storage is not configured"
-      },
-      503
-    );
+    response.status(503).json({
+      code: "storage_not_configured",
+      error: "Storage is not configured"
+    });
+    return;
   }
 
   if (request.method === "GET") {
-    return handleListRequest(request);
+    await handleListRequest(request, response);
+    return;
   }
 
   if (request.method === "POST") {
-    return handleCreateRequest(request);
+    await handleCreateRequest(request, response);
+    return;
   }
 
   if (request.method === "PATCH") {
-    return handleUpdateRequest(request);
+    await handleUpdateRequest(request, response);
+    return;
   }
 
   if (request.method === "DELETE") {
-    return handleDeleteRequest(request);
+    await handleDeleteRequest(request, response);
+    return;
   }
 
-  return jsonResponse({ code: "method_not_allowed", error: "Method not allowed" }, 405);
+  response.status(405).json({ code: "method_not_allowed", error: "Method not allowed" });
 }
 
-async function handleListRequest(request) {
-  const { searchParams } = new URL(getRequestUrl(request));
-  const spotId = normalizeSpotId(searchParams.get("spotId"));
+async function handleListRequest(request, response) {
+  const spotId = normalizeSpotId(request.query && request.query.spotId);
   if (!spotId) {
-    return jsonResponse({ code: "invalid_spot", error: "Spot is invalid" }, 400);
+    response.status(400).json({ code: "invalid_spot", error: "Spot is invalid" });
+    return;
   }
 
   try {
     const entries = await listJournalEntries(spotId);
-    return jsonResponse({
+    response.status(200).json({
       access: JOURNAL_BLOB_ACCESS,
       entries
     });
   } catch (error) {
-    return jsonResponse(
-      {
-        code: "load_failed",
-        detail: error instanceof Error ? error.message : "unknown_error",
-        error: "Unable to load journal entries"
-      },
-      500
-    );
+    response.status(500).json({
+      code: "load_failed",
+      detail: error instanceof Error ? error.message : "unknown_error",
+      error: "Unable to load journal entries"
+    });
   }
 }
 
-async function handleCreateRequest(request) {
+async function handleCreateRequest(request, response) {
   let formData;
-  const webRequest = await toWebRequest(request);
 
   try {
+    const webRequest = await toWebRequest(request);
     formData = await webRequest.formData();
   } catch {
-    return jsonResponse({ code: "invalid_form_data", error: "Request body is invalid" }, 400);
+    response.status(400).json({ code: "invalid_form_data", error: "Request body is invalid" });
+    return;
   }
 
   const spotId = normalizeSpotId(readStringField(formData, "spotId"));
@@ -98,42 +100,42 @@ async function handleCreateRequest(request) {
   const photoFile = readPhotoField(formData, { required: true });
 
   if (!spotId) {
-    return jsonResponse({ code: "invalid_spot", error: "Spot is invalid" }, 400);
+    response.status(400).json({ code: "invalid_spot", error: "Spot is invalid" });
+    return;
   }
 
   if (comment.length > JOURNAL_MAX_COMMENT_LENGTH) {
-    return jsonResponse(
-      {
-        code: "comment_too_long",
-        error: `Comment must be ${JOURNAL_MAX_COMMENT_LENGTH} characters or fewer`
-      },
-      400
-    );
+    response.status(400).json({
+      code: "comment_too_long",
+      error: `Comment must be ${JOURNAL_MAX_COMMENT_LENGTH} characters or fewer`
+    });
+    return;
   }
 
   if (!photoFile) {
-    return jsonResponse({ code: "missing_image", error: "Image is required" }, 400);
+    response.status(400).json({ code: "missing_image", error: "Image is required" });
+    return;
   }
 
   let imageBuffer;
   try {
     imageBuffer = Buffer.from(await photoFile.arrayBuffer());
   } catch {
-    return jsonResponse({ code: "invalid_image", error: "Image data is invalid" }, 400);
+    response.status(400).json({ code: "invalid_image", error: "Image data is invalid" });
+    return;
   }
 
   if (!imageBuffer.length) {
-    return jsonResponse({ code: "missing_image", error: "Image is required" }, 400);
+    response.status(400).json({ code: "missing_image", error: "Image is required" });
+    return;
   }
 
   if (imageBuffer.length > JOURNAL_MAX_IMAGE_BYTES) {
-    return jsonResponse(
-      {
-        code: "image_too_large",
-        error: `Image must be ${Math.round(JOURNAL_MAX_IMAGE_BYTES / 1024 / 1024)}MB or smaller`
-      },
-      400
-    );
+    response.status(400).json({
+      code: "image_too_large",
+      error: `Image must be ${Math.round(JOURNAL_MAX_IMAGE_BYTES / 1024 / 1024)}MB or smaller`
+    });
+    return;
   }
 
   try {
@@ -146,20 +148,21 @@ async function handleCreateRequest(request) {
       originalName: photoFile.name || ""
     });
 
-    return jsonResponse({ entry }, 201);
+    response.status(201).json({ entry });
   } catch (error) {
-    return createJournalErrorResponse(error, "Unable to save journal entry");
+    sendJournalErrorResponse(response, error, "Unable to save journal entry");
   }
 }
 
-async function handleUpdateRequest(request) {
+async function handleUpdateRequest(request, response) {
   let formData;
-  const webRequest = await toWebRequest(request);
 
   try {
+    const webRequest = await toWebRequest(request);
     formData = await webRequest.formData();
   } catch {
-    return jsonResponse({ code: "invalid_form_data", error: "Request body is invalid" }, 400);
+    response.status(400).json({ code: "invalid_form_data", error: "Request body is invalid" });
+    return;
   }
 
   const spotId = normalizeSpotId(readStringField(formData, "spotId"));
@@ -169,21 +172,21 @@ async function handleUpdateRequest(request) {
   const photoFile = readPhotoField(formData, { required: false });
 
   if (!spotId) {
-    return jsonResponse({ code: "invalid_spot", error: "Spot is invalid" }, 400);
+    response.status(400).json({ code: "invalid_spot", error: "Spot is invalid" });
+    return;
   }
 
   if (!entryId) {
-    return jsonResponse({ code: "invalid_entry", error: "Entry is invalid" }, 400);
+    response.status(400).json({ code: "invalid_entry", error: "Entry is invalid" });
+    return;
   }
 
   if (comment.length > JOURNAL_MAX_COMMENT_LENGTH) {
-    return jsonResponse(
-      {
-        code: "comment_too_long",
-        error: `Comment must be ${JOURNAL_MAX_COMMENT_LENGTH} characters or fewer`
-      },
-      400
-    );
+    response.status(400).json({
+      code: "comment_too_long",
+      error: `Comment must be ${JOURNAL_MAX_COMMENT_LENGTH} characters or fewer`
+    });
+    return;
   }
 
   let imageBuffer = null;
@@ -191,21 +194,21 @@ async function handleUpdateRequest(request) {
     try {
       imageBuffer = Buffer.from(await photoFile.arrayBuffer());
     } catch {
-      return jsonResponse({ code: "invalid_image", error: "Image data is invalid" }, 400);
+      response.status(400).json({ code: "invalid_image", error: "Image data is invalid" });
+      return;
     }
 
     if (!imageBuffer.length) {
-      return jsonResponse({ code: "missing_image", error: "Image is required" }, 400);
+      response.status(400).json({ code: "missing_image", error: "Image is required" });
+      return;
     }
 
     if (imageBuffer.length > JOURNAL_MAX_IMAGE_BYTES) {
-      return jsonResponse(
-        {
-          code: "image_too_large",
-          error: `Image must be ${Math.round(JOURNAL_MAX_IMAGE_BYTES / 1024 / 1024)}MB or smaller`
-        },
-        400
-      );
+      response.status(400).json({
+        code: "image_too_large",
+        error: `Image must be ${Math.round(JOURNAL_MAX_IMAGE_BYTES / 1024 / 1024)}MB or smaller`
+      });
+      return;
     }
   }
 
@@ -220,38 +223,41 @@ async function handleUpdateRequest(request) {
       originalName: photoFile ? photoFile.name || "" : ""
     });
 
-    return jsonResponse({ entry });
+    response.status(200).json({ entry });
   } catch (error) {
-    return createJournalErrorResponse(error, "Unable to update journal entry");
+    sendJournalErrorResponse(response, error, "Unable to update journal entry");
   }
 }
 
-async function handleDeleteRequest(request) {
+async function handleDeleteRequest(request, response) {
   let body;
-  const webRequest = await toWebRequest(request);
 
   try {
+    const webRequest = await toWebRequest(request);
     body = await webRequest.json();
   } catch {
-    return jsonResponse({ code: "invalid_json", error: "Request body is invalid" }, 400);
+    response.status(400).json({ code: "invalid_json", error: "Request body is invalid" });
+    return;
   }
 
   const spotId = normalizeSpotId(body && body.spotId);
   const entryId = normalizeEntryId(body && body.entryId);
 
   if (!spotId) {
-    return jsonResponse({ code: "invalid_spot", error: "Spot is invalid" }, 400);
+    response.status(400).json({ code: "invalid_spot", error: "Spot is invalid" });
+    return;
   }
 
   if (!entryId) {
-    return jsonResponse({ code: "invalid_entry", error: "Entry is invalid" }, 400);
+    response.status(400).json({ code: "invalid_entry", error: "Entry is invalid" });
+    return;
   }
 
   try {
     const result = await deleteJournalEntry({ spotId, entryId });
-    return jsonResponse({ entryId: result.id });
+    response.status(200).json({ entryId: result.id });
   } catch (error) {
-    return createJournalErrorResponse(error, "Unable to delete journal entry");
+    sendJournalErrorResponse(response, error, "Unable to delete journal entry");
   }
 }
 
@@ -274,18 +280,15 @@ function readPhotoField(formData, { required }) {
   return value;
 }
 
-function createJournalErrorResponse(error, defaultMessage) {
+function sendJournalErrorResponse(response, error, defaultMessage) {
   const detail = error instanceof Error ? error.message : "unknown_error";
   const status = isClientErrorCode(detail) ? 400 : 500;
 
-  return jsonResponse(
-    {
-      code: detail,
-      detail,
-      error: status === 400 ? "Journal entry is invalid" : defaultMessage
-    },
-    status
-  );
+  response.status(status).json({
+    code: detail,
+    detail,
+    error: status === 400 ? "Journal entry is invalid" : defaultMessage
+  });
 }
 
 function isClientErrorCode(code) {
@@ -300,14 +303,4 @@ function isClientErrorCode(code) {
     "invalid_spot",
     "missing_image"
   ].includes(code);
-}
-
-function jsonResponse(body, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      "Cache-Control": "no-store",
-      "Content-Type": "application/json; charset=utf-8"
-    }
-  });
 }

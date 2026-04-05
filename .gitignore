@@ -1,3 +1,4 @@
 .vercel/
 archive/
 node_modules/
+.env.debug.production
