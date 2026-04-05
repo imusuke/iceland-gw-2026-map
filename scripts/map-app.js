@@ -7,6 +7,13 @@
   const routeStops = tripData.routeStops;
   const itineraryStart = new Date(tripData.itineraryStart);
   const itineraryEnd = new Date(tripData.itineraryEnd);
+  const uiLabels = {
+    fullscreen: "全画面",
+    exitFullscreen: "全画面終了",
+    guide: "ガイド",
+    closeGuide: "ガイドを閉じる",
+    tripProgress: (current, total) => `旅程 ${current} / ${total}`
+  };
 
   const elements = {
     mapElement: document.querySelector(".map-shell"),
@@ -686,7 +693,10 @@
 
   function updateStepControls() {
     elements.stepControls.classList.toggle("hidden", !state.stepModeEnabled);
-    elements.stepProgressLabel.textContent = `Step ${state.currentStepIndex + 1} / ${routeStops.length}`;
+    elements.stepProgressLabel.textContent = uiLabels.tripProgress(
+      state.currentStepIndex + 1,
+      routeStops.length
+    );
   }
 
   function applyVisibility() {
@@ -769,7 +779,9 @@
 
   function toggleStepMode() {
     state.stepModeEnabled = !state.stepModeEnabled;
-    elements.stepModeToggle.textContent = state.stepModeEnabled ? "Close Guide" : "Guide";
+    elements.stepModeToggle.textContent = state.stepModeEnabled
+      ? uiLabels.closeGuide
+      : uiLabels.guide;
     elements.stepModeToggle.classList.toggle("active", state.stepModeEnabled);
 
     if (state.stepModeEnabled) {
@@ -786,7 +798,9 @@
 
   function syncFullscreenLabel() {
     elements.fullscreenButton.textContent =
-      document.fullscreenElement === elements.mapElement ? "Exit Fullscreen" : "Fullscreen";
+      document.fullscreenElement === elements.mapElement
+        ? uiLabels.exitFullscreen
+        : uiLabels.fullscreen;
   }
 
   function attachEvents() {

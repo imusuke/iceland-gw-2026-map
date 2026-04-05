@@ -8,7 +8,7 @@ window.ICELAND_TRIP_DATA = {
       name: "Keflavíkurflugvöllur（ケプラヴィーク国際空港）",
       lat: 63.985,
       lng: -22.6056,
-      note: "07:50着。レンタカーを受け取って、そのままレイキャビクへ向かいます。",
+      note: "07:50着。ヘルシンキ経由で到着後、レンタカーを受け取ってレイキャビクへ向かいます。",
       arrivalTime: "07:50",
       departureTime: "08:45",
       stayDuration: "約55分",
@@ -19,7 +19,7 @@ window.ICELAND_TRIP_DATA = {
       wikiTitle: "Keflav%C3%ADk_International_Airport",
       officialUrl: "https://www.isavia.is/en/keflavik-airport",
       officialLabel: "空港公式",
-      stepHtml: "ここで優先したいのは、レンタカー受け取り、荷物の積み替え、通信手段の確保、そして最初の運転準備です。今回は到着日に遠回りをせず首都へ直行する流れなので、空港では必要最低限だけ整えて早めに出発するのが効率的です。ライト、ワイパー、給油口の開け方、ナビの目的地設定まで確認しておくと、初めてのアイスランド運転でもかなり安心できます。"
+      stepHtml: "ケプラヴィーク国際空港は、レイキャネス半島の溶岩原に広がるアイスランドの国際玄関口で、旅の最初にこの国の火山地形をいきなり実感できる場所です。海と黒い溶岩原の間に滑走路が伸びているので、着いた瞬間から『火山の島に来た』という感覚がかなり強くあります。到着後はレンタカー受け取りと運転準備を優先し、ライトやワイパー、給油口の開け方まで確認してから首都へ向かう流れが安心です。"
     },
     {
       day: "4/30 宿泊",
@@ -27,18 +27,18 @@ window.ICELAND_TRIP_DATA = {
       name: "Hotel Reykjavík Marina（ホテル・レイキャヴィーク・マリーナ）",
       lat: 64.150663,
       lng: -21.951847,
-      note: "旧港エリアの Hotel Reykjavik Marina に宿泊。昼は市内カフェ、夜は Forrettabarinn 候補です。",
+      note: "Hotel Reykjavik Marina に宿泊。ランドリーあり。昼はレイキャビクのカフェ、夜は Forrettabarinn（予約必要）案です。",
       arrivalTime: "09:50",
       departureTime: "翌日 08:00",
       stayDuration: "約22時間10分",
-      driveTimeFromPrev: "約42分",
+      driveTimeFromPrev: "約1時間5分",
       icon: "🏨",
       kind: "stay",
-      distanceFromPrev: "約49km",
+      distanceFromPrev: "約70km",
       wikiTitle: "Reykjav%C3%ADk",
       officialUrl: "https://maps.app.goo.gl/ZxSUAASb3jXgR6qJ8",
       officialLabel: "ホテル地図",
-      stepHtml: "Hotel Reykjavik Marina は旧港エリア散策の起点としてとても使いやすいホテルです。到着後は荷物を置いたら、Harpa 方面へ海沿いを歩くか、港周辺のカフェでゆっくり整えるくらいがちょうど良さそうです。夜は Forrettabarinn のように旧港で完結する店を選ぶと移動が増えません。初日は『遠くまで回る日』ではなく、『旧港の雰囲気をつかんで早めに休む日』として使うのが翌日に効きます。"
+      stepHtml: "この宿がある旧港エリアは、外海を島々がやわらげる天然の良港を核にレイキャビクが育った場所です。20世紀には漁業の中心地として広がり、いまは倉庫や波止場の名残を残しながらカフェやレストランが集まる街並みに変わっています。初日は Harpa 方面まで港沿いを歩き、『海辺の入植地が首都へ育った場所』として眺めると、レイキャビクの成り立ちがつかみやすいです。"
     },
     {
       day: "5/1",
@@ -57,7 +57,7 @@ window.ICELAND_TRIP_DATA = {
       wikiTitle: "Thingvellir",
       officialUrl: "https://www.thingvellir.is/en",
       officialLabel: "Thingvellir公式",
-      stepHtml: "最初は高い場所からアルマンナギャゥの裂け目を見て、そこから下へ降りる順番にすると地形の意味が分かりやすいです。時間があれば Oxararfoss まで歩くと、プレート境界の景観と滝を一緒に見られて満足感が高まります。ここは『何を見る場所か』を意識して歩くと印象が大きく変わるスポットなので、最初の展望だけで終えず、少し中へ入るのがおすすめです。"
+      stepHtml: "シンクヴェトリルは、北米プレートとユーラシアプレートが離れ続ける地溝帯の上にあり、アイスランドの成り立ちそのものを地表で見られる場所です。さらに西暦930年に Alþingi が開かれたことで、地質だけでなく国の歴史の出発点にもなりました。最初は高い場所から裂け目と湖を見てから下へ降りると、『なぜここが特別か』が地形と歴史の両方から分かりやすいです。"
     },
     {
       day: "5/1",
@@ -76,7 +76,7 @@ window.ICELAND_TRIP_DATA = {
       wikiTitle: "Geysir",
       officialUrl: "https://www.visiticeland.com/article/geysir-geothermal-area",
       officialLabel: "Visit Iceland",
-      stepHtml: "ここでは大ゲイシール本体より、定期的に噴く Strokkur を主役として見るのが基本です。最初の1回は写真を撮るより、噴出前に水面が盛り上がるリズムを見る時間に使うと、その後の撮影成功率が上がります。風向きで蒸気の流れが大きく変わるので、立ち位置は一か所に固定せず、少し動いて決めるのがおすすめです。売店や休憩所が近いので、次の移動前の短いリセット地点としても優秀です。"
+      stepHtml: "ゲイシール地熱地帯は、地下の熱で温められた水が地中の割れ目を通って噴き上がることで生まれた、アイスランド火山帯の力をそのまま見せる場所です。大ゲイシールは世界中の『geyser』という言葉の語源になり、いまは近くの Strokkur が定期的に噴き上がってその仕組みを見せてくれます。最初の1回は撮影よりも噴出前に水面がふくらむ様子を観察すると、この場所の成り立ちが感覚で理解しやすいです。"
     },
     {
       day: "5/1",
@@ -95,7 +95,7 @@ window.ICELAND_TRIP_DATA = {
       wikiTitle: "Gullfoss",
       officialUrl: "https://www.visiticeland.com/article/gullfoss",
       officialLabel: "Visit Iceland",
-      stepHtml: "Gullfoss は上から見た時の全景と、下の展望側で感じる迫力の両方が魅力です。先に全景を押さえてから近い位置へ回ると、渓谷へ吸い込まれるような落差の大きさがよりよく分かります。風としぶきで一気に寒く感じやすいので、防水の上着やフードをすぐ出せるようにしておくと快適です。短時間でも強い印象が残るので、次の長い移動前にテンポよく回るのに向いています。"
+      stepHtml: "グトルフォスは、氷河 Langjokull を源流にもつ Hvita 川が長い時間をかけて峡谷を削り、その縁で二段に落ち込むことで生まれた滝です。氷河の水が平原を突然切り裂いて深い谷へ落ちるので、上からの全景と下からの迫力で印象が大きく変わります。ここでは『氷河の水が大地を彫った跡』を見るつもりで回ると、単なる名瀑以上に面白く見えてきます。"
     },
     {
       day: "5/1 宿泊",
@@ -103,7 +103,7 @@ window.ICELAND_TRIP_DATA = {
       name: "Kviholmi Premium Apartments（クヴィホルミ・プレミアム・アパートメンツ）",
       lat: 63.6156,
       lng: -20.047,
-      note: "セリャラントスフォス周辺の宿。夜は自炊予定です。",
+      note: "セリャラントスフォス周辺のアパートメント泊。ゴールデンサークルを満喫して南下し、夜は自炊です。",
       arrivalTime: "15:20",
       departureTime: "翌日 08:30",
       stayDuration: "約17時間10分",
@@ -114,7 +114,7 @@ window.ICELAND_TRIP_DATA = {
       wikiTitle: "Seljalandsfoss",
       officialUrl: "https://maps.app.goo.gl/4x3W8c6Yq3G7h1qC8",
       officialLabel: "宿周辺地図",
-      stepHtml: "この宿は翌朝の南海岸観光へつなぐ前泊地点として考えるのがぴったりです。到着後は自炊の準備、防水装備の乾燥、カメラやスマホの充電など、翌日に効く作業へ時間を使うのが正解です。翌日は滝と絶景が続くので、朝すぐ出られるようにレインウェアや予備の靴下、手袋をひとまとめにしておくとかなり楽になります。"
+      stepHtml: "この宿がある南海岸のふもとは、氷河・火山・海が何度も地形を書き換えてきたエリアで、近くの断崖はかつての海岸線の名残です。翌朝に見る滝や平原の景色は、その『海が引き、氷河が残り、火山灰が積もった土地』の延長にあります。宿では自炊や装備整理をしながら、翌日に見る南海岸の成り立ちを頭に入れておくと景色のつながりが見えやすくなります。"
     },
     {
       day: "5/2",
@@ -133,7 +133,7 @@ window.ICELAND_TRIP_DATA = {
       wikiTitle: "Seljalandsfoss",
       officialUrl: "https://www.south.is/en/place/seljalandsfoss-waterfall",
       officialLabel: "South Iceland",
-      stepHtml: "この滝は真正面の景色だけでなく、裏側へ回り込んだ時の見え方の変化が主役です。裏側はかなり濡れるので、スマホやカメラは取り出す順番まで考えておくと安心です。時間があれば西側の Gljufrabui も追加すると、同じエリアで性格の違う2本の滝を見比べられます。朝は団体客が少なく、旅の勢いを作りやすい一発目のスポットです。"
+      stepHtml: "セリャラントスフォスは、氷河 Eyjafjallajokull から流れる Seljalandsa 川が、かつての海岸線だった崖を落ちることで生まれた滝です。海が退いたあとに崖だけが残ったため、滝の裏側に回り込める珍しい形になりました。ここでは『昔の海辺の崖を氷河の水が落ちている』と意識すると、この滝ならではの立体感がよく伝わります。"
     },
     {
       day: "5/2",
@@ -152,7 +152,7 @@ window.ICELAND_TRIP_DATA = {
       wikiTitle: "Sk%C3%B3gafoss",
       officialUrl: "https://www.visiticeland.com/article/skogafoss-waterfall",
       officialLabel: "Visit Iceland",
-      stepHtml: "Skogafoss は滝壺近くで感じる圧倒的な水量と、階段を上がった先で見える南海岸の広がりの両方が魅力です。下からの迫力を見た後に、体力と風の様子を見て上へ行くかを決めると無理がありません。写真を撮るなら、近景と全景を分けて撮る意識を持つと失敗しにくいです。晴れ間があれば虹が出やすいので、すぐ動かず少しだけ待つ価値があります。"
+      stepHtml: "スコゥガフォスも、南海岸の海が今より内陸まで入り込んでいた頃の海食崖に Skoga 川が落ち続けて生まれた滝です。海岸線が南へ後退したあとも崖だけが一直線に残ったので、この地域の滝は『昔の海の縁』を示す目印のように並んでいます。下から水量を感じたあとに上へ回ると、南海岸の低地と旧海岸線の関係が見えやすいです。"
     },
     {
       day: "5/2",
@@ -171,7 +171,7 @@ window.ICELAND_TRIP_DATA = {
       wikiTitle: "Fja%C3%B0r%C3%A1rglj%C3%BAfur",
       officialUrl: "https://www.south.is/en/place/fjadrargljufur-canyon",
       officialLabel: "South Iceland",
-      stepHtml: "この峡谷は谷底へ下りる場所ではなく、縁を歩きながら何段階かの視点で見下ろす場所です。最初の展望だけで戻ると少しもったいなく、先のポイントまで歩くと景色の奥行きが増してきます。苔が非常に繊細なので歩道を外れない意識が大事です。短時間でも『アイスランドらしい絶景感』を得やすい一方、足元はぬかるみやすく油断しやすいスポットでもあります。"
+      stepHtml: "フャズラオルグリューブル峡谷は、氷期の終わりごろに氷河が退いたあと、湖から流れ出した水が palagonite の地層を長い時間かけて削って生まれた峡谷です。いま見ている曲がりくねった谷は、『氷河が去った後の水の力』の痕跡そのものです。最初の展望だけで戻らず少し先まで歩くと、侵食がどう進んだかを地形のうねりとして感じやすくなります。"
     },
     {
       day: "5/2 宿泊",
@@ -179,7 +179,7 @@ window.ICELAND_TRIP_DATA = {
       name: "Fosshotel Glacier Lagoon（フォスホテル・グレイシャー・ラグーン）",
       lat: 63.9765,
       lng: -16.4088,
-      note: "朝食付きホテル。翌日の氷河歩きに備える前泊拠点です。",
+      note: "朝食付きホテル。夜は 18:00 にレストラン予約済みで、翌日の氷河歩きに備える前泊拠点です。",
       arrivalTime: "15:30",
       departureTime: "翌日 08:45",
       stayDuration: "約17時間15分",
@@ -190,7 +190,7 @@ window.ICELAND_TRIP_DATA = {
       wikiTitle: "Vatnaj%C3%B6kull_National_Park",
       officialUrl: "https://maps.app.goo.gl/CY4HqC8Kj3xWmR7a8",
       officialLabel: "ホテル地図",
-      stepHtml: "この宿は Skaftafell と Jokulsarlon の中間寄りで、翌日の氷河歩きにかなり都合の良い位置です。ここで大事なのは観光を増やすことより、朝食時間、出発時刻、装備の並べ順を固めることです。防水ジャケットの下に何を着るか、手袋や帽子をどこへしまうかまで決めておくと翌朝がとても楽です。翌日は体力をしっかり使う日なので、睡眠を削らないこと自体が旅程成功のポイントになります。"
+      stepHtml: "この宿がある Orafi 一帯は、巨大な氷河 Vatnajokull と火山活動がぶつかり合い、洪水や砂原を生みながら形づくられてきた『火と氷の境界』です。Skaftafell や Jokulsarlon が近いのは偶然ではなく、この周辺全体が氷河の前進後退と氷河洪水でできた地形だからです。夜は翌日の装備を整えつつ、『火山と氷河が同じ場所を作っている地域』にいる感覚で休むと、次の日の景色がつながります。"
     },
     {
       day: "5/3",
@@ -209,7 +209,7 @@ window.ICELAND_TRIP_DATA = {
       wikiTitle: "Skaftafell",
       officialUrl: "https://www.vatnajokulsthjodgardur.is/en/areas/skaftafell",
       officialLabel: "Vatnajokull国立公園",
-      stepHtml: "この日の中心は 9:30 発の氷河歩きです。集合前に駐車、トイレ、防寒具の最終確認まで済ませておくと安心です。ツアー後は疲労感が想像以上に出やすいので、『まだ歩けそう』と思っても追加トレイルを詰め込みすぎない方が、その後の Jokulsarlon と長距離移動まで含めてきれいに回れます。ここは景観の迫力を主役にする日として、しっかり体力を使う前提で組むのが正解です。"
+      stepHtml: "スカフタフェットル周辺は、Vatnajokull から伸びる氷河が谷を削り、さらに火山噴火や氷河洪水が地形を重ねてきた『火と氷が同時に働く』地域です。氷河歩きはただ白い氷の上を歩く体験ではなく、何百年も積もった雪が圧縮されて氷になり、ゆっくり流れながら大地を削っている現場に入る体験でもあります。出発前にその成り立ちを頭に入れておくと、氷の縞や割れ目の見え方がぐっと面白くなります。"
     },
     {
       day: "5/3",
@@ -228,7 +228,7 @@ window.ICELAND_TRIP_DATA = {
       wikiTitle: "J%C3%B6kuls%C3%A1rl%C3%B3n",
       officialUrl: "https://icelagoon.is",
       officialLabel: "Jokulsarlon公式",
-      stepHtml: "ここは湖側の静かな景色と、Diamond Beach の動きのある海岸景観をセットで見ると印象が深まります。時間が限られる日は、先に湖で氷の大きさや流れを見てから、道路を渡って海側へ移る順番が効率的です。光の向きで氷の色がかなり変わるので、どちらか一方で長居しすぎず、両方に時間を残すのがおすすめです。海側は波へ意識を持っていかれやすいので、立ち位置を決めて落ち着いて見る方が安全です。"
+      stepHtml: "ヨークルスアゥルロゥン氷河湖は、Breidamerkurjokull が後退したことで氷河が掘った深い盆地に水がたまり、1930年代以降に生まれた比較的新しい湖です。海とつながっているので、割れた氷が潮の力で行き来し、Diamond Beach まで流れていきます。ここでは『いまこの瞬間も氷河が後退して湖が育っている』という現在進行形の地形として見ると印象が深まります。"
     },
     {
       day: "5/3 宿泊",
@@ -247,7 +247,7 @@ window.ICELAND_TRIP_DATA = {
       wikiTitle: "V%C3%ADk_%C3%AD_M%C3%BDrdal",
       officialUrl: "https://maps.app.goo.gl/2z7aKg6W4bK9fH3K7",
       officialLabel: "宿周辺地図",
-      stepHtml: "この日は旅の中でもかなり長い移動日なので、Vik Apartments は『回復のための宿』として考えるのが合っています。明るいうちに余力があれば教会の高台へ寄るのは良い選択ですが、食材確保、洗濯、充電、荷物整理を優先しても十分価値があります。翌日はレイキャビクへ戻るだけに見えて、意外と疲れが残りやすいので、ここでしっかり整えるのが大事です。黒砂海岸方面を無理に追加せず、宿で休む判断もかなり合理的な日です。"
+      stepHtml: "ヴィークは、黒砂海岸と急な崖に挟まれた地形の中で、周辺農場の物流を支える交易拠点として19世紀後半に育った村です。港がないのに重要だったのは、東西の移動が難しい南岸で海上輸送の中継点になったからです。いまは観光の町ですが、教会の高台や海沿いを見ると『地形に合わせて生き延びてきた集落』という成り立ちがよく分かります。"
     },
     {
       day: "5/4",
@@ -255,7 +255,7 @@ window.ICELAND_TRIP_DATA = {
       name: "Rey Apartments（レイ・アパートメンツ）",
       lat: 64.1452,
       lng: -21.9177,
-      note: "市内散策日の宿。夜は 18:00 に Skál! を予約済みです。",
+      note: "首都へ戻る日の宿。美術館や歴史博物館をゆっくり回し、夜は 18:00 に Skál! 予定です。",
       arrivalTime: "11:30",
       departureTime: "翌日 05:45",
       stayDuration: "約18時間15分",
@@ -266,7 +266,7 @@ window.ICELAND_TRIP_DATA = {
       wikiTitle: "Reykjav%C3%ADk",
       officialUrl: "https://maps.app.goo.gl/UyA3fCVsDPRTSFyn7",
       officialLabel: "ホテル地図",
-      stepHtml: "Rey Apartments は Laugavegur 周辺の動線が良く、市内散策と夕食予約をつなげやすい宿です。5/4 は観光を詰め込む日というより、旅の締めに好きな場所をゆっくり回す日として考えると組みやすいです。18:00 に Skál! の予約があるので、午後は教会や美術館を見たあと、16時台には一度宿の近くへ戻れるようにすると無理がありません。お土産を買うならこの日が最後の実質チャンスなので、夕方前に少し時間を残すのがおすすめです。"
+      stepHtml: "レイキャビク中心部は、天然の良港を軸に入植地から町、そして都市へ育ったアイスランドの出発点です。Aðalstræti 周辺では10世紀の長屋跡も見つかっていて、いま歩く中心街の下に定住初期の層が重なっています。5/4 は美術館や歴史博物館を回りながら、『海辺の農場が首都へ変わった過程』を感じる日にすると、旅の締めとしてかなりきれいです。"
     },
     {
       day: "5/5",
@@ -274,18 +274,18 @@ window.ICELAND_TRIP_DATA = {
       name: "Keflavíkurflugvöllur へ移動（ケプラヴィーク国際空港）",
       lat: 63.985,
       lng: -22.6056,
-      note: "早朝に空港へ。08:35発の便で出国します。",
+      note: "早朝に空港へ。08:35 ケフラヴィーク発（AY992便）です。",
       arrivalTime: "06:30",
       departureTime: "08:35",
       stayDuration: "約2時間05分",
-      driveTimeFromPrev: "約42分",
+      driveTimeFromPrev: "約45分",
       icon: "✈",
       kind: "airport",
       distanceFromPrev: "約50km",
       wikiTitle: "Keflav%C3%ADk_International_Airport",
       officialUrl: "https://www.isavia.is/en/keflavik-airport",
       officialLabel: "空港公式",
-      stepHtml: "最終日はとにかく『返却を含めた空港到着を早めに』が正解です。ガソリン、荷造り、朝食調達などを前日までに済ませておくと、朝は返却と保安検査に集中できます。空港へ向かう道自体は難しくありませんが、旅の最後は判断力が落ちやすいので、ナビ設定や返却場所確認まで前夜に済ませておくと安心です。ホテル出発時点で『そのまま返却して中へ入れる状態』を作っておくのが理想です。"
+      stepHtml: "帰りに通るケプラヴィーク空港も、旅の最初と同じくレイキャネス半島の溶岩原の上に開かれたアイスランドの対外玄関です。旅の始まりに見た黒い溶岩地形を、最後にもう一度『この国の地質の入口』として見返す形になります。08:35 発の AY992 便に向けて返却や保安検査は余裕を持ち、旅の最初と最後が同じ場所でつながる感覚で締めるのがきれいです。"
     }
   ]
 };
