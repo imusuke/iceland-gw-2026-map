@@ -4,9 +4,12 @@ import {
   JOURNAL_MAX_COMMENT_LENGTH,
   JOURNAL_MAX_IMAGE_BYTES,
   createJournalEntry,
+  deleteJournalEntry,
   isJournalStorageConfigured,
   listJournalEntries,
-  normalizeSpotId
+  normalizeEntryId,
+  normalizeSpotId,
+  updateJournalEntry
 } from "../lib/journal-store.js";
 
 export default async function handler(request) {
@@ -19,7 +22,7 @@ export default async function handler(request) {
     return new Response(null, {
       status: 204,
       headers: {
-        Allow: "GET, POST, OPTIONS"
+        Allow: "GET, POST, PATCH, DELETE, OPTIONS"
       }
     });
   }
@@ -40,6 +43,14 @@ export default async function handler(request) {
 
   if (request.method === "POST") {
     return handleCreateRequest(request);
+  }
+
+  if (request.method === "PATCH") {
+    return handleUpdateRequest(request);
+  }
+
+  if (request.method === "DELETE") {
+    return handleDeleteRequest(request);
   }
 
   return jsonResponse({ code: "method_not_allowed", error: "Method not allowed" }, 405);
@@ -71,30 +82,24 @@ async function handleListRequest(request) {
 }
 
 async function handleCreateRequest(request) {
-  let body;
+  let formData;
 
   try {
-    body = await request.json();
+    formData = await request.formData();
   } catch {
-    return jsonResponse({ code: "invalid_json", error: "Request body is invalid" }, 400);
+    return jsonResponse({ code: "invalid_form_data", error: "Request body is invalid" }, 400);
   }
 
-  const spotId = normalizeSpotId(body && body.spotId);
-  const comment = typeof body?.comment === "string" ? body.comment : "";
-  const mimeType = typeof body?.mimeType === "string" ? body.mimeType : "";
-  const imageBase64 = typeof body?.imageBase64 === "string" ? body.imageBase64 : "";
-  const originalName = typeof body?.originalName === "string" ? body.originalName : "";
-  const visitedAt = typeof body?.visitedAt === "string" ? body.visitedAt : "";
+  const spotId = normalizeSpotId(readStringField(formData, "spotId"));
+  const comment = readStringField(formData, "comment");
+  const visitedAt = readStringField(formData, "visitedAt");
+  const photoFile = readPhotoField(formData, { required: true });
 
   if (!spotId) {
     return jsonResponse({ code: "invalid_spot", error: "Spot is invalid" }, 400);
   }
 
-  if (!comment.trim()) {
-    return jsonResponse({ code: "missing_comment", error: "Comment is required" }, 400);
-  }
-
-  if (comment.trim().length > JOURNAL_MAX_COMMENT_LENGTH) {
+  if (comment.length > JOURNAL_MAX_COMMENT_LENGTH) {
     return jsonResponse(
       {
         code: "comment_too_long",
@@ -104,13 +109,13 @@ async function handleCreateRequest(request) {
     );
   }
 
-  if (!imageBase64) {
+  if (!photoFile) {
     return jsonResponse({ code: "missing_image", error: "Image is required" }, 400);
   }
 
   let imageBuffer;
   try {
-    imageBuffer = Buffer.from(imageBase64, "base64");
+    imageBuffer = Buffer.from(await photoFile.arrayBuffer());
   } catch {
     return jsonResponse({ code: "invalid_image", error: "Image data is invalid" }, 400);
   }
@@ -135,33 +140,160 @@ async function handleCreateRequest(request) {
       comment,
       visitedAt,
       imageBuffer,
-      mimeType,
-      originalName
+      mimeType: photoFile.type || "",
+      originalName: photoFile.name || ""
     });
 
     return jsonResponse({ entry }, 201);
   } catch (error) {
-    const detail = error instanceof Error ? error.message : "unknown_error";
-    const status = isClientErrorCode(detail) ? 400 : 500;
+    return createJournalErrorResponse(error, "Unable to save journal entry");
+  }
+}
 
+async function handleUpdateRequest(request) {
+  let formData;
+
+  try {
+    formData = await request.formData();
+  } catch {
+    return jsonResponse({ code: "invalid_form_data", error: "Request body is invalid" }, 400);
+  }
+
+  const spotId = normalizeSpotId(readStringField(formData, "spotId"));
+  const entryId = normalizeEntryId(readStringField(formData, "entryId"));
+  const comment = readStringField(formData, "comment");
+  const visitedAt = readStringField(formData, "visitedAt");
+  const photoFile = readPhotoField(formData, { required: false });
+
+  if (!spotId) {
+    return jsonResponse({ code: "invalid_spot", error: "Spot is invalid" }, 400);
+  }
+
+  if (!entryId) {
+    return jsonResponse({ code: "invalid_entry", error: "Entry is invalid" }, 400);
+  }
+
+  if (comment.length > JOURNAL_MAX_COMMENT_LENGTH) {
     return jsonResponse(
       {
-        code: detail,
-        detail,
-        error: status === 400 ? "Journal entry is invalid" : "Unable to save journal entry"
+        code: "comment_too_long",
+        error: `Comment must be ${JOURNAL_MAX_COMMENT_LENGTH} characters or fewer`
       },
-      status
+      400
     );
   }
+
+  let imageBuffer = null;
+  if (photoFile) {
+    try {
+      imageBuffer = Buffer.from(await photoFile.arrayBuffer());
+    } catch {
+      return jsonResponse({ code: "invalid_image", error: "Image data is invalid" }, 400);
+    }
+
+    if (!imageBuffer.length) {
+      return jsonResponse({ code: "missing_image", error: "Image is required" }, 400);
+    }
+
+    if (imageBuffer.length > JOURNAL_MAX_IMAGE_BYTES) {
+      return jsonResponse(
+        {
+          code: "image_too_large",
+          error: `Image must be ${Math.round(JOURNAL_MAX_IMAGE_BYTES / 1024 / 1024)}MB or smaller`
+        },
+        400
+      );
+    }
+  }
+
+  try {
+    const entry = await updateJournalEntry({
+      spotId,
+      entryId,
+      comment,
+      visitedAt,
+      imageBuffer,
+      mimeType: photoFile ? photoFile.type || "" : "",
+      originalName: photoFile ? photoFile.name || "" : ""
+    });
+
+    return jsonResponse({ entry });
+  } catch (error) {
+    return createJournalErrorResponse(error, "Unable to update journal entry");
+  }
+}
+
+async function handleDeleteRequest(request) {
+  let body;
+
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ code: "invalid_json", error: "Request body is invalid" }, 400);
+  }
+
+  const spotId = normalizeSpotId(body && body.spotId);
+  const entryId = normalizeEntryId(body && body.entryId);
+
+  if (!spotId) {
+    return jsonResponse({ code: "invalid_spot", error: "Spot is invalid" }, 400);
+  }
+
+  if (!entryId) {
+    return jsonResponse({ code: "invalid_entry", error: "Entry is invalid" }, 400);
+  }
+
+  try {
+    const result = await deleteJournalEntry({ spotId, entryId });
+    return jsonResponse({ entryId: result.id });
+  } catch (error) {
+    return createJournalErrorResponse(error, "Unable to delete journal entry");
+  }
+}
+
+function readStringField(formData, fieldName) {
+  const value = formData.get(fieldName);
+  return typeof value === "string" ? value : "";
+}
+
+function readPhotoField(formData, { required }) {
+  const value = formData.get("photo");
+
+  if (!value || typeof value === "string") {
+    return required ? null : null;
+  }
+
+  if (value.size <= 0) {
+    return required ? null : null;
+  }
+
+  return value;
+}
+
+function createJournalErrorResponse(error, defaultMessage) {
+  const detail = error instanceof Error ? error.message : "unknown_error";
+  const status = isClientErrorCode(detail) ? 400 : 500;
+
+  return jsonResponse(
+    {
+      code: detail,
+      detail,
+      error: status === 400 ? "Journal entry is invalid" : defaultMessage
+    },
+    status
+  );
 }
 
 function isClientErrorCode(code) {
   return [
     "comment_too_long",
+    "entry_not_found",
     "image_too_large",
+    "invalid_entry",
+    "invalid_image",
     "invalid_image_type",
+    "invalid_pathname",
     "invalid_spot",
-    "missing_comment",
     "missing_image"
   ].includes(code);
 }

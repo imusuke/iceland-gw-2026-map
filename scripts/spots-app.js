@@ -152,7 +152,7 @@
     const note = createElement(
       "p",
       "spot-journal-note",
-      "写真1枚とコメントを追加できます。画像は自動で縮小して保存されます。"
+      "写真だけでも残せます。コメントは任意で、あとから編集や削除もできます。"
     );
     header.append(title, note);
 
@@ -208,15 +208,14 @@
     grid.append(photoField, visitedField);
 
     const commentField = createElement("div", "journal-field");
-    const commentLabel = createFieldLabel(`comment-${spotId}`, "コメント");
+    const commentLabel = createFieldLabel(`comment-${spotId}`, "コメント（任意）");
     const commentInput = document.createElement("textarea");
     commentInput.className = "journal-textarea";
     commentInput.id = `comment-${spotId}`;
     commentInput.name = "comment";
-    commentInput.required = true;
     commentInput.maxLength = JOURNAL_MAX_COMMENT_LENGTH;
     commentInput.rows = 4;
-    commentInput.placeholder = "この場所で印象に残ったことや、その場の空気を書き残せます。";
+    commentInput.placeholder = "この場所で印象に残ったことや、その場の空気を書き残せます。空でも保存できます。";
     const commentHint = createElement(
       "p",
       "journal-input-hint",
@@ -273,7 +272,7 @@
         return;
       }
 
-      renderJournalEntries(entryList, payload.entries);
+      renderJournalEntries(entryList, payload.entries, spotId, status);
       setJournalStatus(status, `${payload.entries.length}件の記録があります。`, "success");
     } catch (error) {
       const code = error instanceof Error ? error.code || error.message : "";
@@ -316,38 +315,27 @@
       return;
     }
 
-    if (!comment) {
-      setJournalStatus(status, "コメントを入力してください。", "error");
-      commentInput.focus();
-      return;
-    }
-
     setJournalFormEnabled(form, false);
     submitButton.textContent = "保存しています…";
 
     try {
       setJournalStatus(status, "写真を整えています…", "loading");
       const normalizedImage = await normalizeImageForUpload(selectedFile);
-      const imageBase64 = await blobToBase64(normalizedImage.blob);
       const visitedAt = visitedInput.value ? new Date(visitedInput.value).toISOString() : "";
+      const formData = buildJournalFormData({
+        spotId,
+        comment,
+        visitedAt,
+        photo: normalizedImage
+      });
 
       setJournalStatus(status, "旅の記録を保存しています…", "loading");
       const payload = await requestJson(JOURNAL_API_PATH, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          comment,
-          imageBase64,
-          mimeType: normalizedImage.blob.type,
-          originalName: selectedFile.name,
-          spotId,
-          visitedAt
-        })
+        body: formData
       });
 
-      prependJournalEntry(entryList, payload.entry);
+      prependJournalEntry(entryList, payload.entry, spotId, status);
       form.reset();
       visitedInput.value = buildVisitedAtDefault(stop);
       setJournalStatus(status, "旅の記録を保存しました。", "success");
@@ -404,7 +392,10 @@
       throw new Error("写真が大きすぎます。もう少し小さい画像を選んでください。");
     }
 
-    return { blob };
+    return {
+      blob,
+      fileName: replaceFileExtension(file.name || "travel-photo.jpg", "jpg")
+    };
   }
 
   async function loadImageSource(file) {
@@ -431,19 +422,21 @@
     });
   }
 
-  function blobToBase64(blob) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = typeof reader.result === "string" ? reader.result : "";
-        const separatorIndex = result.indexOf(",");
-        resolve(separatorIndex >= 0 ? result.slice(separatorIndex + 1) : result);
-      };
-      reader.onerror = () => {
-        reject(new Error("画像データを読み取れませんでした。"));
-      };
-      reader.readAsDataURL(blob);
-    });
+  function buildJournalFormData({ spotId, entryId, comment, visitedAt, photo }) {
+    const formData = new FormData();
+    formData.set("spotId", spotId);
+    formData.set("comment", comment || "");
+    formData.set("visitedAt", visitedAt || "");
+
+    if (entryId) {
+      formData.set("entryId", entryId);
+    }
+
+    if (photo && photo.blob) {
+      formData.append("photo", photo.blob, photo.fileName || "travel-photo.jpg");
+    }
+
+    return formData;
   }
 
   async function requestJson(url, options) {
@@ -470,6 +463,10 @@
     }
 
     const text = await response.text();
+    if (!text) {
+      return {};
+    }
+
     return { error: text };
   }
 
@@ -482,10 +479,6 @@
 
     if (code === "invalid_spot") {
       return "スポット情報を読み取れませんでした。";
-    }
-
-    if (code === "missing_comment") {
-      return "コメントを入力してください。";
     }
 
     if (code === "comment_too_long") {
@@ -508,6 +501,10 @@
       return "旅の記録を読み込めませんでした。";
     }
 
+    if (code === "invalid_entry" || code === "entry_not_found") {
+      return "この旅の記録が見つかりませんでした。再読み込みしてからもう一度試してください。";
+    }
+
     if (code === "invalid_pathname") {
       return "写真の読み込み先が正しくありません。";
     }
@@ -517,20 +514,20 @@
       : "通信に失敗しました。";
   }
 
-  function renderJournalEntries(container, entries) {
+  function renderJournalEntries(container, entries, spotId, status) {
     container.textContent = "";
     entries.forEach((entry) => {
-      container.append(createJournalEntryCard(entry));
+      container.append(createJournalEntryCard(entry, { entryList: container, spotId, status }));
     });
   }
 
-  function prependJournalEntry(container, entry) {
+  function prependJournalEntry(container, entry, spotId, status) {
     const currentEmpty = container.querySelector(".journal-empty");
     if (currentEmpty) {
       currentEmpty.remove();
     }
 
-    container.prepend(createJournalEntryCard(entry));
+    container.prepend(createJournalEntryCard(entry, { entryList: container, spotId, status }));
   }
 
   function renderJournalEmptyState(container, message) {
@@ -542,8 +539,42 @@
     container.append(empty);
   }
 
-  function createJournalEntryCard(entry) {
+  function replaceJournalEntryCard(container, entry, spotId, status) {
+    const currentCard = findJournalEntryCard(container, entry.id);
+    const nextCard = createJournalEntryCard(entry, {
+      entryList: container,
+      spotId,
+      status
+    });
+
+    if (currentCard) {
+      currentCard.replaceWith(nextCard);
+      return;
+    }
+
+    prependJournalEntry(container, entry, spotId, status);
+  }
+
+  function removeJournalEntryCard(container, entryId) {
+    const currentCard = findJournalEntryCard(container, entryId);
+    if (currentCard) {
+      currentCard.remove();
+    }
+
+    if (!container.querySelector(".journal-entry")) {
+      renderJournalEmptyState(container, "まだ記録はありません。最初の1枚を残せます。");
+    }
+  }
+
+  function findJournalEntryCard(container, entryId) {
+    return Array.from(container.querySelectorAll(".journal-entry")).find((element) => {
+      return element.dataset.entryId === entryId;
+    });
+  }
+
+  function createJournalEntryCard(entry, context) {
     const article = createElement("article", "journal-entry");
+    article.dataset.entryId = entry.id;
     const image = createElement("img", "journal-entry-photo");
     image.alt = "旅の記録写真";
     image.loading = "lazy";
@@ -564,11 +595,246 @@
     );
     meta.append(visited, saved);
 
-    const comment = createElement("p", "journal-entry-comment", entry.comment);
-    body.append(meta, comment);
+    if (entry.updatedAt && entry.updatedAt !== entry.uploadedAt) {
+      const updated = createElement(
+        "p",
+        "journal-entry-updated",
+        `更新: ${formatJournalDateTime(entry.updatedAt, "更新日時不明")}`
+      );
+      meta.append(updated);
+    }
+
+    const comment = createElement(
+      "p",
+      entry.comment ? "journal-entry-comment" : "journal-entry-comment journal-entry-comment-empty",
+      entry.comment || "コメントなし"
+    );
+
+    const actions = createElement("div", "journal-entry-actions");
+    const editButton = createElement("button", "journal-entry-button", "編集");
+    editButton.type = "button";
+    const deleteButton = createElement("button", "journal-entry-button journal-entry-button-danger", "削除");
+    deleteButton.type = "button";
+    actions.append(editButton, deleteButton);
+
+    const editForm = buildJournalEditForm(entry);
+
+    function setEditMode(open) {
+      editForm.panel.hidden = !open;
+      editButton.textContent = open ? "閉じる" : "編集";
+
+      if (!open) {
+        editForm.commentInput.value = entry.comment || "";
+        editForm.visitedInput.value = buildVisitedAtInputValue(entry.visitedAt);
+        editForm.photoInput.value = "";
+        setJournalStatus(editForm.status, "", "idle");
+      }
+    }
+
+    editButton.addEventListener("click", () => {
+      setEditMode(editForm.panel.hidden);
+    });
+
+    editForm.cancelButton.addEventListener("click", () => {
+      setEditMode(false);
+    });
+
+    editForm.form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await submitJournalEntryUpdate({
+        entry,
+        context,
+        editForm,
+        setEditMode
+      });
+    });
+
+    deleteButton.addEventListener("click", async () => {
+      await deleteJournalEntryRecord({
+        context,
+        deleteButton,
+        editButton,
+        entry
+      });
+    });
+
+    body.append(meta, comment, actions, editForm.panel);
     article.append(image, body);
 
     return article;
+  }
+
+  function buildJournalEditForm(entry) {
+    const panel = createElement("div", "journal-edit-panel");
+    panel.hidden = true;
+
+    const form = createElement("form", "journal-edit-form");
+    form.noValidate = true;
+
+    const fieldset = createElement("fieldset", "journal-fieldset journal-edit-fieldset");
+    const grid = createElement("div", "journal-form-grid");
+
+    const photoField = createElement("div", "journal-field");
+    const photoLabel = createFieldLabel(`edit-photo-${entry.id}`, "写真を差し替える");
+    const photoInput = document.createElement("input");
+    photoInput.className = "journal-input";
+    photoInput.id = `edit-photo-${entry.id}`;
+    photoInput.name = "photo";
+    photoInput.type = "file";
+    photoInput.accept = "image/*";
+    const photoHint = createElement(
+      "p",
+      "journal-input-hint",
+      "差し替えるときだけ写真を選んでください。"
+    );
+    photoField.append(photoLabel, photoInput, photoHint);
+
+    const visitedField = createElement("div", "journal-field");
+    const visitedLabel = createFieldLabel(`edit-visited-${entry.id}`, "訪問した日時");
+    const visitedInput = document.createElement("input");
+    visitedInput.className = "journal-input";
+    visitedInput.id = `edit-visited-${entry.id}`;
+    visitedInput.name = "visitedAt";
+    visitedInput.type = "datetime-local";
+    visitedInput.value = buildVisitedAtInputValue(entry.visitedAt);
+    const visitedHint = createElement(
+      "p",
+      "journal-input-hint",
+      "空にすると日時なしとして保存します。"
+    );
+    visitedField.append(visitedLabel, visitedInput, visitedHint);
+
+    grid.append(photoField, visitedField);
+
+    const commentField = createElement("div", "journal-field");
+    const commentLabel = createFieldLabel(`edit-comment-${entry.id}`, "コメント（任意）");
+    const commentInput = document.createElement("textarea");
+    commentInput.className = "journal-textarea";
+    commentInput.id = `edit-comment-${entry.id}`;
+    commentInput.name = "comment";
+    commentInput.maxLength = JOURNAL_MAX_COMMENT_LENGTH;
+    commentInput.rows = 4;
+    commentInput.placeholder = "コメントは空でも保存できます。";
+    commentInput.value = entry.comment || "";
+    const commentHint = createElement(
+      "p",
+      "journal-input-hint",
+      `${JOURNAL_MAX_COMMENT_LENGTH}文字まで。コメントを消して保存することもできます。`
+    );
+    commentField.append(commentLabel, commentInput, commentHint);
+
+    const actions = createElement("div", "journal-form-actions");
+    const submitButton = createElement("button", "action-button secondary journal-submit", "更新する");
+    submitButton.type = "submit";
+    const cancelButton = createElement("button", "journal-entry-button", "キャンセル");
+    cancelButton.type = "button";
+    const helper = createElement(
+      "p",
+      "journal-submit-note",
+      "写真の差し替え、コメント修正、日時変更ができます。"
+    );
+    actions.append(submitButton, cancelButton, helper);
+
+    const status = createElement("p", "journal-status journal-edit-status");
+
+    fieldset.append(grid, commentField, actions);
+    form.append(fieldset, status);
+    panel.append(form);
+
+    return {
+      panel,
+      form,
+      fieldset,
+      photoInput,
+      visitedInput,
+      commentInput,
+      submitButton,
+      cancelButton,
+      status
+    };
+  }
+
+  async function submitJournalEntryUpdate({ entry, context, editForm, setEditMode }) {
+    const selectedFile = editForm.photoInput.files && editForm.photoInput.files[0];
+    const comment = editForm.commentInput.value.trim();
+    const visitedAt = editForm.visitedInput.value
+      ? new Date(editForm.visitedInput.value).toISOString()
+      : "";
+
+    editForm.fieldset.disabled = true;
+    editForm.submitButton.textContent = "更新しています…";
+
+    try {
+      let normalizedImage = null;
+      if (selectedFile) {
+        setJournalStatus(editForm.status, "写真を整えています…", "loading");
+        normalizedImage = await normalizeImageForUpload(selectedFile);
+      }
+
+      setJournalStatus(editForm.status, "旅の記録を更新しています…", "loading");
+      const payload = await requestJson(JOURNAL_API_PATH, {
+        method: "PATCH",
+        body: buildJournalFormData({
+          spotId: context.spotId,
+          entryId: entry.id,
+          comment,
+          visitedAt,
+          photo: normalizedImage
+        })
+      });
+
+      replaceJournalEntryCard(context.entryList, payload.entry, context.spotId, context.status);
+      setJournalStatus(context.status, "旅の記録を更新しました。", "success");
+      setEditMode(false);
+    } catch (error) {
+      setJournalStatus(
+        editForm.status,
+        error instanceof Error && error.message
+          ? error.message
+          : "旅の記録を更新できませんでした。",
+        "error"
+      );
+    } finally {
+      editForm.fieldset.disabled = false;
+      editForm.submitButton.textContent = "更新する";
+    }
+  }
+
+  async function deleteJournalEntryRecord({ context, deleteButton, editButton, entry }) {
+    const confirmed = window.confirm("この旅の記録を削除しますか？");
+    if (!confirmed) {
+      return;
+    }
+
+    deleteButton.disabled = true;
+    editButton.disabled = true;
+    setJournalStatus(context.status, "旅の記録を削除しています…", "loading");
+
+    try {
+      await requestJson(JOURNAL_API_PATH, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          spotId: context.spotId,
+          entryId: entry.id
+        })
+      });
+
+      removeJournalEntryCard(context.entryList, entry.id);
+      setJournalStatus(context.status, "旅の記録を削除しました。", "success");
+    } catch (error) {
+      setJournalStatus(
+        context.status,
+        error instanceof Error && error.message
+          ? error.message
+          : "旅の記録を削除できませんでした。",
+        "error"
+      );
+      deleteButton.disabled = false;
+      editButton.disabled = false;
+    }
   }
 
   function setJournalStatus(element, message, tone) {
@@ -614,6 +880,27 @@
     const hours = String(date.getHours()).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
     return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  function buildVisitedAtInputValue(value) {
+    if (!value) {
+      return "";
+    }
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return "";
+    }
+
+    return formatDateTimeLocalInput(date);
+  }
+
+  function replaceFileExtension(filename, nextExtension) {
+    const baseName = String(filename || "travel-photo")
+      .replace(/\.[^/.]+$/, "")
+      .replace(/\s+/g, "-");
+
+    return `${baseName || "travel-photo"}.${nextExtension}`;
   }
 
   function createSpotCard(stop, index) {
