@@ -146,6 +146,12 @@
     const summary = createElement("p", "spot-summary", stop.note);
     const detailLabel = createElement("p", "content-kicker", "成り立ちと見どころ");
     const detail = createElement("p", "spot-detail-copy", stop.stepHtml || stop.note);
+    const historyLabel = stop.historyHtml
+      ? createElement("p", "content-kicker", "歴史の背景")
+      : null;
+    const history = stop.historyHtml
+      ? createElement("p", "spot-detail-copy spot-history-copy", stop.historyHtml)
+      : null;
 
     const meta = createElement("div", "spot-meta");
     appendMetaItem(meta, "到着", stop.arrivalTime);
@@ -168,7 +174,11 @@
       links.append(wikiLink);
     }
 
-    content.append(summaryLabel, summary, detailLabel, detail, meta, links);
+    content.append(summaryLabel, summary, detailLabel, detail);
+    if (historyLabel && history) {
+      content.append(historyLabel, history);
+    }
+    content.append(meta, links);
     body.append(figure, content);
     article.append(header, body);
 
