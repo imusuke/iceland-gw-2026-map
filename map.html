@@ -20,10 +20,16 @@
     <div id="map" aria-label="アイスランド旅行のルートマップ"></div>
 
     <section class="floating-panel top-right controls-stack">
-      <button type="button" class="map-control-button" id="fullscreen-button">全画面</button>
-      <button type="button" class="map-control-button" id="step-mode-toggle">ガイド</button>
-      <a class="map-control-button control-link" id="spot-details-link" href="/spots">スポット詳細</a>
-      <a class="map-control-button control-link" id="history-link" href="/history">アイスランド史</a>
+      <div class="map-control-row" aria-label="地図の操作">
+        <button type="button" class="map-control-button" id="fullscreen-button">全画面</button>
+        <button type="button" class="map-control-button" id="step-mode-toggle">ガイド</button>
+      </div>
+
+      <nav class="map-control-row map-page-links" aria-label="主要ページ">
+        <span class="map-control-button map-control-current" aria-current="page">ルートマップ</span>
+        <a class="map-control-button control-link" href="/spots">スポット詳細</a>
+        <a class="map-control-button control-link" href="/history">アイスランド史</a>
+      </nav>
     </section>
 
     <section class="floating-panel bottom-right step-controls hidden" id="step-controls">
@@ -36,6 +42,7 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
   ></script>
+  <script src="/scripts/trip-shared.js"></script>
   <script src="/data/route-data.js"></script>
   <script src="/scripts/map-app.js"></script>
 </body>

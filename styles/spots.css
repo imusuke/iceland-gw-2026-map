@@ -9,14 +9,14 @@
   --line: rgba(23, 42, 58, 0.12);
   --muted: #5b6b73;
   --shadow: 0 24px 60px rgba(23, 42, 58, 0.14);
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
+  --ui-accent: var(--accent-strong);
+  --ui-accent-strong: var(--accent-strong);
+  --ui-accent-soft: var(--accent-soft);
+  --ui-line: var(--line);
+  --ui-muted: var(--muted);
+  --ui-button-primary-from: #0f3d52;
+  --ui-button-primary-to: #1a5f7a;
+  --ui-button-primary-shadow: 0 16px 34px rgba(26, 95, 122, 0.22);
 }
 
 body {
@@ -47,13 +47,6 @@ body {
   backdrop-filter: blur(14px);
 }
 
-.hero-copy {
-  display: grid;
-  gap: 10px;
-}
-
-.hero-eyebrow,
-.section-eyebrow,
 .content-kicker,
 .spot-step-label {
   margin: 0;
@@ -69,35 +62,6 @@ body {
   font-size: clamp(2.4rem, 4vw, 4.8rem);
   line-height: 0.95;
   letter-spacing: -0.04em;
-}
-
-.hero-lead {
-  margin: 0;
-  max-width: 60rem;
-  color: var(--muted);
-  font-size: 1.02rem;
-  line-height: 1.8;
-}
-
-.hero-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.hero-meta-item {
-  margin: 0;
-  padding: 10px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.72);
-  font-weight: 700;
-}
-
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
 }
 
 .details-layout {
@@ -261,37 +225,6 @@ body {
   flex-wrap: wrap;
   gap: 10px;
   align-items: flex-start;
-}
-
-.action-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 46px;
-  padding: 0 18px;
-  border: none;
-  border-radius: 999px;
-  cursor: pointer;
-  text-decoration: none;
-  font: inherit;
-  font-weight: 800;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-}
-
-.action-button:hover {
-  transform: translateY(-1px);
-}
-
-.action-button.primary {
-  color: #ffffff;
-  background: linear-gradient(135deg, #0f3d52, #1a5f7a);
-  box-shadow: 0 16px 34px rgba(26, 95, 122, 0.22);
-}
-
-.action-button.secondary {
-  color: var(--accent-strong);
-  background: rgba(255, 255, 255, 0.74);
-  border: 1px solid rgba(23, 42, 58, 0.1);
 }
 
 .spot-card-body {
@@ -700,7 +633,6 @@ body {
   }
 
   .spot-actions,
-  .hero-actions,
   .spot-links,
   .journal-form-actions,
   .journal-entry-actions {

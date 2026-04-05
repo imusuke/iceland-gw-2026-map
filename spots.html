@@ -7,6 +7,7 @@
   <title>アイスランド GW 2026 スポット詳細</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
   <link rel="apple-touch-icon" href="/favicon.svg" />
+  <link rel="stylesheet" href="/styles/site.css" />
   <link rel="stylesheet" href="/styles/spots.css" />
 </head>
 <body>
@@ -14,7 +15,7 @@
     <header class="details-hero">
       <div class="hero-copy">
         <p class="hero-eyebrow">アイスランド GW 2026</p>
-        <h1>スポット詳細ページ</h1>
+        <h1>スポット詳細</h1>
         <p class="hero-lead">
           マップ上の各スポットを、旅程メモと成り立ちの説明つきで読みやすくまとめたページです。
           気になる場所から地図へ戻り、そのまま位置を確認できます。
@@ -26,10 +27,11 @@
         <p class="hero-meta-item" id="spot-count"></p>
       </div>
 
-      <div class="hero-actions">
-        <a class="action-button primary" href="/map">マップを見る</a>
-        <a class="action-button secondary" href="/history">アイスランド史へ</a>
-      </div>
+      <nav class="page-nav" aria-label="主要ページ">
+        <a class="action-button secondary" href="/map">ルートマップ</a>
+        <a class="action-button current" href="/spots" aria-current="page">スポット詳細</a>
+        <a class="action-button secondary" href="/history">アイスランド史</a>
+      </nav>
     </header>
 
     <div class="details-layout">
@@ -44,6 +46,7 @@
     </div>
   </main>
 
+  <script src="/scripts/trip-shared.js"></script>
   <script src="/data/route-data.js"></script>
   <script src="/scripts/spots-app.js"></script>
 </body>

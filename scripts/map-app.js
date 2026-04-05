@@ -4,6 +4,7 @@
     throw new Error("Trip data is missing.");
   }
 
+  const shared = window.ICELAND_TRIP_SHARED || {};
   const routeStops = tripData.routeStops;
   const itineraryStart = new Date(tripData.itineraryStart);
   const itineraryEnd = new Date(tripData.itineraryEnd);
@@ -12,14 +13,25 @@
     exitFullscreen: "全画面終了",
     guide: "ガイド",
     closeGuide: "ガイドを閉じる",
-    spotDetails: "スポット詳細",
-    readOnDetailsPage: "詳細ページで読む",
-    tripProgress: (current, total) => `旅程 ${current} / ${total}`
+    readOnDetailsPage: shared.labels && shared.labels.readOnDetailsPage
+      ? shared.labels.readOnDetailsPage
+      : "スポット詳細で読む",
+    referenceInfo: shared.labels && shared.labels.referenceInfo
+      ? shared.labels.referenceInfo
+      : "Wikipedia の参考情報",
+    tripProgress: shared.labels && typeof shared.labels.tripProgress === "function"
+      ? shared.labels.tripProgress
+      : (current, total) => `旅程 ${current} / ${total}`
   };
+  const buildSpotDetailsPath = typeof shared.buildSpotDetailsPath === "function"
+    ? shared.buildSpotDetailsPath
+    : (index) => `/spots#spot-${index + 1}`;
+  const loadReferencePhoto = typeof shared.loadReferencePhoto === "function"
+    ? shared.loadReferencePhoto
+    : async (stop) => stop.photoUrl || "";
 
   const elements = {
     mapElement: document.querySelector(".map-shell"),
-    mapCanvas: document.getElementById("map"),
     fullscreenButton: document.getElementById("fullscreen-button"),
     stepModeToggle: document.getElementById("step-mode-toggle"),
     stepControls: document.getElementById("step-controls"),
@@ -30,11 +42,18 @@
   stepOverlay.className = "floating-panel top-left step-overlay hidden";
   elements.mapElement.appendChild(stepOverlay);
 
+  const routeStatusPanel = document.createElement("section");
+  routeStatusPanel.className = "floating-panel route-status-panel hidden";
+  routeStatusPanel.setAttribute("aria-live", "polite");
+  elements.mapElement.appendChild(routeStatusPanel);
+
   const state = {
     stepModeEnabled: false,
     currentStepIndex: 0,
     activeSpotIndex: null,
-    stepImageRequestId: 0
+    stepImageRequestId: 0,
+    pendingRouteSegments: 0,
+    failedRouteSegments: []
   };
 
   const map = L.map("map", {
@@ -56,14 +75,6 @@
   const segmentArrows = [];
   const routeGeometryCache = new Map();
   const ROUTE_CACHE_PREFIX = "iceland-route-geometry-v1:";
-
-  function buildSpotDetailsPath(index) {
-    return `/spots#spot-${index + 1}`;
-  }
-
-  function buildSpotMapPath(index) {
-    return `/map?spot=${index + 1}`;
-  }
 
   function parseRequestedSpotIndex() {
     const currentUrl = new URL(window.location.href);
@@ -226,7 +237,7 @@
     const [month, day] = stop.filterDay.split("/").map(Number);
     const timePart = stop.arrivalTime.replace("翌日 ", "");
     const [hours, minutes] = timePart.split(":").map(Number);
-    return new Date(2026, month - 1, day, hours, minutes);
+    return new Date(itineraryStart.getFullYear(), month - 1, day, hours, minutes);
   }
 
   function buildTimelineMeta(stop) {
@@ -413,7 +424,7 @@
       links.push(`<a class="map-tooltip-link" href="${stop.officialUrl}" target="_blank" rel="noreferrer">${stop.officialLabel || "公式情報"}</a>`);
     }
     if (stop.wikiTitle) {
-      links.push(`<a class="map-tooltip-link" href="https://en.wikipedia.org/wiki/${stop.wikiTitle}" target="_blank" rel="noreferrer">写真と概要</a>`);
+      links.push(`<a class="map-tooltip-link" href="https://en.wikipedia.org/wiki/${stop.wikiTitle}" target="_blank" rel="noreferrer">${uiLabels.referenceInfo}</a>`);
     }
     const navHtml = `
       <div class="map-tooltip-nav">
@@ -565,21 +576,55 @@
     const requestId = ++state.stepImageRequestId;
 
     try {
-      const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${stop.wikiTitle}`);
-      if (!response.ok) {
-        return;
-      }
-
-      const data = await response.json();
+      const photoUrl = await loadReferencePhoto(stop);
       if (requestId !== state.stepImageRequestId) {
         return;
       }
 
-      stop.photoUrl = data.thumbnail && data.thumbnail.source ? data.thumbnail.source : "";
+      stop.photoUrl = photoUrl || "";
       refreshSpotDetails(index);
     } catch (_error) {
       stop.photoUrl = stop.photoUrl || "";
     }
+  }
+
+  function setRouteStatus(kind, title, body) {
+    if (!title) {
+      routeStatusPanel.classList.add("hidden");
+      routeStatusPanel.innerHTML = "";
+      return;
+    }
+
+    routeStatusPanel.innerHTML = `
+      <p class="route-status-label route-status-label-${kind}">${title}</p>
+      <p class="route-status-copy">${body}</p>
+    `;
+    routeStatusPanel.classList.remove("hidden");
+  }
+
+  function updateRouteStatusPanel() {
+    const totalSegments = routeSegments.length;
+    const completedSegments = totalSegments - state.pendingRouteSegments;
+
+    if (state.pendingRouteSegments > 0) {
+      setRouteStatus(
+        "loading",
+        "道路ルートを読み込んでいます",
+        `${completedSegments} / ${totalSegments} 区間の道路ルートを確認しています。`
+      );
+      return;
+    }
+
+    if (state.failedRouteSegments.length > 0) {
+      setRouteStatus(
+        "warning",
+        "一部の道路ルートを表示できませんでした",
+        `${state.failedRouteSegments.length} 区間は誤解を避けるため直線の代替線を表示せず、道路ルートだけを表示しています。`
+      );
+      return;
+    }
+
+    setRouteStatus("", "", "");
   }
 
   function distanceMeters(a, b) {
@@ -694,26 +739,39 @@
         weight: 5,
         opacity: 0.9,
         lineJoin: "round"
-      }).addTo(map);
+      });
 
-      const segmentEntry = { line: segment, index, fromStop: prev, toStop: stop, arrow: null };
+      const segmentEntry = {
+        line: segment,
+        index,
+        fromStop: prev,
+        toStop: stop,
+        arrow: null,
+        isResolved: false
+      };
       routeSegments.push(segmentEntry);
-      updateSegmentArrow(segmentEntry, fallbackLatLngs);
     });
     routeSegments.sort((a, b) => a.index - b.index);
+    state.pendingRouteSegments = routeSegments.length;
+    state.failedRouteSegments = [];
+    updateRouteStatusPanel();
   }
 
   async function enhanceSegmentLayers() {
-    for (const segmentEntry of routeSegments) {
+    await Promise.all(routeSegments.map(async (segmentEntry) => {
       const latLngs = await fetchRouteGeometry(segmentEntry.fromStop, segmentEntry.toStop);
-      if (!latLngs || latLngs.length < 2) {
-        continue;
+      if (latLngs && latLngs.length >= 2) {
+        segmentEntry.line.setLatLngs(latLngs);
+        segmentEntry.isResolved = true;
+        updateSegmentArrow(segmentEntry, latLngs);
+      } else {
+        state.failedRouteSegments.push(segmentEntry.index);
       }
 
-      segmentEntry.line.setLatLngs(latLngs);
-      updateSegmentArrow(segmentEntry, latLngs);
+      state.pendingRouteSegments = Math.max(0, state.pendingRouteSegments - 1);
+      updateRouteStatusPanel();
       applyVisibility();
-    }
+    }));
   }
 
   function updateStepControls() {
@@ -734,12 +792,12 @@
       }
     });
 
-    routeSegments.forEach(({ line, index }) => {
+    routeSegments.forEach(({ line, index, isResolved }) => {
       const visibleByStep =
         !state.stepModeEnabled ||
         index === state.currentStepIndex ||
         index === state.currentStepIndex + 1;
-      if (visibleByStep) {
+      if (isResolved && visibleByStep) {
         line.addTo(map);
       } else {
         line.remove();

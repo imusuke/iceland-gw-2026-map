@@ -67,6 +67,36 @@ body {
   right: 16px;
 }
 
+.route-status-panel {
+  top: 132px;
+  right: 16px;
+  max-width: min(360px, calc(100vw - 32px));
+  padding: 10px 12px;
+}
+
+.route-status-label {
+  margin: 0 0 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.route-status-label-loading {
+  color: var(--accent-strong);
+}
+
+.route-status-label-warning {
+  color: #92400e;
+}
+
+.route-status-copy {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
 .step-overlay {
   left: 50%;
   right: auto;
@@ -243,11 +273,24 @@ body {
 }
 
 .controls-stack {
+  display: grid;
+  gap: 10px;
+  max-width: min(520px, calc(100vw - 32px));
+  justify-items: end;
+}
+
+.map-control-row {
   display: flex;
-  flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+}
+
+.map-page-links {
+  width: 100%;
+  padding-top: 10px;
+  border-top: 1px solid rgba(21, 94, 117, 0.12);
 }
 
 .panel-title {
@@ -291,6 +334,18 @@ body {
   background: var(--accent);
   color: #ffffff;
   border-color: var(--accent);
+}
+
+.map-control-current {
+  background: rgba(14, 116, 144, 0.12);
+  border-color: rgba(21, 94, 117, 0.16);
+  color: var(--accent-strong);
+  cursor: default;
+  pointer-events: none;
+}
+
+.map-control-current:hover {
+  transform: none;
 }
 
 .hidden {
@@ -462,12 +517,31 @@ body {
 
 .map-tooltip-timeline-edges,
 .map-tooltip-distance-edges {
-  display: none;
+  position: relative;
+  display: block;
+  min-height: 104px;
 }
 
 .map-tooltip-timeline-edge,
 .map-tooltip-distance-edge {
-  display: none;
+  position: absolute;
+  left: 0;
+  display: block;
+  font-size: 0.54rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  transform: translateY(50%);
+  color: var(--muted);
+}
+
+.map-tooltip-distance-edge {
+  color: #8a5a1a;
+}
+
+.timeline-row-1,
+.distance-row-1 {
+  left: 14px;
 }
 
 .map-tooltip-timeline-tick,
@@ -632,6 +706,13 @@ body {
     padding: 12px;
   }
 
+  .route-status-panel {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    max-width: none;
+  }
+
   .top-left,
   .top-right,
   .bottom-right {
@@ -649,8 +730,11 @@ body {
   }
 
   .controls-stack {
-    flex-direction: row;
-    flex-wrap: wrap;
+    justify-items: stretch;
+  }
+
+  .map-control-row {
+    justify-content: flex-start;
   }
 
   .map-tooltip {
@@ -659,5 +743,10 @@ body {
 
   .map-tooltip-nav {
     flex-direction: column;
+  }
+
+  .map-tooltip-timeline-edges,
+  .map-tooltip-distance-edges {
+    min-height: 92px;
   }
 }

@@ -4,6 +4,7 @@
     throw new Error("Trip data is missing.");
   }
 
+  const shared = window.ICELAND_TRIP_SHARED || {};
   const JOURNAL_API_PATH = "/api/journal";
   const JOURNAL_MAX_COMMENT_LENGTH = 600;
   const MAX_IMAGE_DIMENSION = 1800;
@@ -12,6 +13,29 @@
   const routeStops = tripData.routeStops;
   const itineraryStart = new Date(tripData.itineraryStart);
   const itineraryEnd = new Date(tripData.itineraryEnd);
+  const uiLabels = {
+    referenceInfo: shared.labels && shared.labels.referenceInfo
+      ? shared.labels.referenceInfo
+      : "Wikipedia の参考情報",
+    openSpotOnMap: shared.labels && shared.labels.openSpotOnMap
+      ? shared.labels.openSpotOnMap
+      : "この場所をマップで開く",
+    overviewMap: shared.labels && shared.labels.overviewMap
+      ? shared.labels.overviewMap
+      : "ルートマップ全体",
+    spotBadge: shared.labels && typeof shared.labels.spotBadge === "function"
+      ? shared.labels.spotBadge
+      : (index) => `スポット ${index}`
+  };
+  const buildSpotMapPath = typeof shared.buildSpotMapPath === "function"
+    ? shared.buildSpotMapPath
+    : (index) => `/map?spot=${index + 1}`;
+  const buildSpotId = typeof shared.buildSpotId === "function"
+    ? shared.buildSpotId
+    : (index) => `spot-${index + 1}`;
+  const loadReferencePhoto = typeof shared.loadReferencePhoto === "function"
+    ? shared.loadReferencePhoto
+    : async (stop) => stop.photoUrl || "";
   const fullDateTimeFormatter = new Intl.DateTimeFormat("ja-JP", {
     year: "numeric",
     month: "numeric",
@@ -64,14 +88,6 @@
     return fullDateTimeFormatter.format(parsedDate);
   }
 
-  function buildMapPath(index) {
-    return `/map?spot=${index + 1}`;
-  }
-
-  function buildSpotId(index) {
-    return `spot-${index + 1}`;
-  }
-
   function groupStopsByDay(stops) {
     const groups = [];
     let currentGroup = null;
@@ -120,15 +136,8 @@
       return frame;
     }
 
-    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${stop.wikiTitle}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Summary request failed: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        const photoUrl = data && data.thumbnail && data.thumbnail.source ? data.thumbnail.source : "";
+    loadReferencePhoto(stop)
+      .then((photoUrl) => {
         if (!photoUrl) {
           frame.classList.add("is-empty");
           return;
@@ -909,15 +918,15 @@
 
     const header = createElement("header", "spot-card-header");
     const headerCopy = createElement("div", "spot-card-copy");
-    const stepLabel = createElement("p", "spot-step-label", `Spot ${index + 1}`);
+    const stepLabel = createElement("p", "spot-step-label", uiLabels.spotBadge(index + 1));
     const title = createElement("h2", "spot-title", stop.name);
     const day = createElement("p", "spot-day", stop.day);
     headerCopy.append(stepLabel, title, day);
 
     const actions = createElement("div", "spot-actions");
     actions.append(
-      createLink("action-button primary", buildMapPath(index), "このスポットを地図で見る"),
-      createLink("action-button secondary", "/map", "地図へ戻る")
+      createLink("action-button primary", buildSpotMapPath(index), uiLabels.openSpotOnMap),
+      createLink("action-button secondary", "/map", uiLabels.overviewMap)
     );
 
     header.append(headerCopy, actions);
@@ -964,7 +973,7 @@
     }
 
     if (stop.wikiTitle) {
-      const wikiLink = createLink("spot-link", `https://en.wikipedia.org/wiki/${stop.wikiTitle}`, "写真と概要");
+      const wikiLink = createLink("spot-link", `https://en.wikipedia.org/wiki/${stop.wikiTitle}`, uiLabels.referenceInfo);
       wikiLink.target = "_blank";
       wikiLink.rel = "noreferrer";
       links.append(wikiLink);

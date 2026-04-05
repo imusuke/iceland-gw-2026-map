@@ -7,6 +7,7 @@
   <title>アイスランド GW 2026 アイスランド史</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
   <link rel="apple-touch-icon" href="/favicon.svg" />
+  <link rel="stylesheet" href="/styles/site.css" />
   <link rel="stylesheet" href="/styles/history.css" />
 </head>
 <body>
@@ -28,11 +29,15 @@
         <p class="hero-meta-item">旅程中のスポットへすぐ戻れる導線つき</p>
       </div>
 
-      <nav class="hero-actions" aria-label="歴史ページの導線">
-        <a class="action-button primary" href="/map">マップを見る</a>
-        <a class="action-button secondary" href="/spots">スポット詳細へ</a>
-        <a class="action-button secondary" href="#geology">地質学的な歴史へ</a>
-        <a class="action-button secondary" href="#people">人類の歴史へ</a>
+      <nav class="page-nav" aria-label="主要ページ">
+        <a class="action-button secondary" href="/map">ルートマップ</a>
+        <a class="action-button secondary" href="/spots">スポット詳細</a>
+        <a class="action-button current" href="/history" aria-current="page">アイスランド史</a>
+      </nav>
+
+      <nav class="hero-jumps" aria-label="ページ内の移動">
+        <a class="action-button secondary" href="#geology">地質学的な歴史</a>
+        <a class="action-button secondary" href="#people">人類の歴史</a>
       </nav>
     </header>
 
