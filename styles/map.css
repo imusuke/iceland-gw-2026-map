@@ -279,6 +279,10 @@ body {
   justify-items: end;
 }
 
+.floating-panel.controls-stack {
+  padding: 18px;
+}
+
 .map-control-row {
   display: flex;
   flex-wrap: wrap;
@@ -316,7 +320,7 @@ body {
   line-height: 1.2;
   white-space: nowrap;
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+  transition: box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .control-link {
@@ -327,7 +331,8 @@ body {
 }
 
 .map-control-button:hover {
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 10px 22px rgba(23, 42, 58, 0.12);
 }
 
 .map-control-button.active {
@@ -345,7 +350,7 @@ body {
 }
 
 .map-control-current:hover {
-  transform: none;
+  box-shadow: none;
 }
 
 .hidden {
@@ -411,6 +416,8 @@ body {
 }
 
 .map-tooltip-content {
+  display: grid;
+  gap: 10px;
   min-width: 0;
 }
 
@@ -426,6 +433,17 @@ body {
   min-width: 0;
 }
 
+.map-tooltip-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.map-tooltip-title-group {
+  min-width: 0;
+}
+
 .map-tooltip-title {
   margin: 0 0 3px;
   font-size: 1rem;
@@ -434,7 +452,7 @@ body {
 
 .map-tooltip-day {
   display: inline-block;
-  margin-bottom: 6px;
+  margin-bottom: 0;
   padding: 2px 8px;
   border-radius: 999px;
   background: rgba(14, 116, 144, 0.1);
@@ -660,7 +678,6 @@ body {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid rgba(21, 94, 117, 0.12);
 }
@@ -668,6 +685,19 @@ body {
 .map-tooltip-nav .map-control-button {
   flex: 1 1 0;
   justify-content: center;
+}
+
+.map-tooltip-close {
+  min-height: 38px;
+  padding-inline: 14px;
+}
+
+.map-tooltip-journal-slot {
+  min-width: 0;
+}
+
+.map-tooltip-journal-slot:empty {
+  display: none;
 }
 
 .map-tooltip-nav .map-control-button:disabled {
@@ -704,6 +734,10 @@ body {
   .floating-panel {
     max-width: calc(100vw - 20px);
     padding: 12px;
+  }
+
+  .floating-panel.controls-stack {
+    padding: 14px;
   }
 
   .route-status-panel {
@@ -743,6 +777,16 @@ body {
 
   .map-tooltip-nav {
     flex-direction: column;
+  }
+
+  .map-tooltip-heading {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .map-tooltip-close {
+    width: 100%;
+    justify-content: center;
   }
 
   .map-tooltip-timeline-edges,

@@ -5,6 +5,7 @@
   }
 
   const shared = window.ICELAND_TRIP_SHARED || {};
+  const journalUi = window.ICELAND_TRIP_JOURNAL_UI || {};
   const routeStops = tripData.routeStops;
   const itineraryStart = new Date(tripData.itineraryStart);
   const itineraryEnd = new Date(tripData.itineraryEnd);
@@ -13,6 +14,7 @@
     exitFullscreen: "全画面終了",
     guide: "ガイド",
     closeGuide: "ガイドを閉じる",
+    close: "閉じる",
     readOnDetailsPage: shared.labels && shared.labels.readOnDetailsPage
       ? shared.labels.readOnDetailsPage
       : "スポット詳細で読む",
@@ -26,6 +28,9 @@
   const buildSpotDetailsPath = typeof shared.buildSpotDetailsPath === "function"
     ? shared.buildSpotDetailsPath
     : (index) => `/spots#spot-${index + 1}`;
+  const buildSpotId = typeof shared.buildSpotId === "function"
+    ? shared.buildSpotId
+    : (index) => `spot-${index + 1}`;
   const loadReferencePhoto = typeof shared.loadReferencePhoto === "function"
     ? shared.loadReferencePhoto
     : async (stop) => stop.photoUrl || "";
@@ -386,6 +391,37 @@
     });
   }
 
+  function createFallbackMapJournalSection() {
+    const section = document.createElement("section");
+    section.className = "spot-journal spot-journal-compact";
+    const note = document.createElement("p");
+    note.className = "spot-journal-note";
+    note.textContent = "旅の記録を読み込めませんでした。ページを再読み込みしてください。";
+    section.append(note);
+    return section;
+  }
+
+  function mountMapJournalSection(stop, index) {
+    const slot = stepOverlay.querySelector("[data-map-journal-slot]");
+    if (!slot) {
+      return;
+    }
+
+    if (typeof journalUi.createJournalSection !== "function") {
+      slot.append(createFallbackMapJournalSection());
+      return;
+    }
+
+    slot.append(journalUi.createJournalSection({
+      stop,
+      index,
+      itineraryStart,
+      buildSpotId,
+      variant: "compact",
+      note: "地図を見ながら、この場所の写真やコメントを残せます。"
+    }));
+  }
+
   function buildTooltipHtml(stop, index) {
     const imageClass = stop.photoUrl ? "map-tooltip-photo" : "map-tooltip-photo empty";
     const imageHtml = `<img class="${imageClass}" src="${stop.photoUrl || ""}" alt="${stop.name} の写真" />`;
@@ -435,8 +471,13 @@
 
     return [
       '<div class="map-tooltip">',
+      '<div class="map-tooltip-heading">',
+      '<div class="map-tooltip-title-group">',
       `<h3 class="map-tooltip-title">${index + 1}. ${stop.name}</h3>`,
       `<span class="map-tooltip-day">${stop.day}</span>`,
+      "</div>",
+      `<button type="button" class="map-control-button map-tooltip-close" data-step-nav="close">${uiLabels.close}</button>`,
+      "</div>",
       '<div class="map-tooltip-main">',
       timeline
         ? `
@@ -484,6 +525,7 @@
       `<div class="map-tooltip-meta-grid">${timeHtml}${distanceHtml}</div>`,
       `<div class="map-tooltip-links">${links.join("")}</div>`,
       navHtml,
+      '<div class="map-tooltip-journal-slot" data-map-journal-slot></div>',
       '</div>',
       '</div>',
       "</div>"
@@ -534,6 +576,7 @@
     stepOverlay.style.width = `${Math.max(320, overlayWidth)}px`;
     stepOverlay.style.maxHeight = `${Math.max(280, mapSize.y - verticalMargin)}px`;
     stepOverlay.innerHTML = buildTooltipHtml(entry.stop, index);
+    mountMapJournalSection(entry.stop, index);
     stepOverlay.classList.remove("hidden");
     state.activeSpotIndex = index;
   }
@@ -556,16 +599,30 @@
     showStepOverlay(index);
   }
 
-  function refreshSpotDetails(index) {
+  function refreshTooltipPhoto(index) {
     const entry = markers[index];
     if (!entry) {
       return;
     }
 
     const isOverlayVisibleForStop = state.activeSpotIndex === index && !stepOverlay.classList.contains("hidden");
-    if (isOverlayVisibleForStop) {
-      showStepOverlay(index);
+    if (!isOverlayVisibleForStop) {
+      return;
     }
+
+    const photoElement = stepOverlay.querySelector(".map-tooltip-photo");
+    if (!photoElement) {
+      return;
+    }
+
+    if (entry.stop.photoUrl) {
+      photoElement.src = entry.stop.photoUrl;
+      photoElement.classList.remove("empty");
+      return;
+    }
+
+    photoElement.removeAttribute("src");
+    photoElement.classList.add("empty");
   }
 
   async function loadPhotoForStop(stop, index) {
@@ -582,7 +639,7 @@
       }
 
       stop.photoUrl = photoUrl || "";
-      refreshSpotDetails(index);
+      refreshTooltipPhoto(index);
     } catch (_error) {
       stop.photoUrl = stop.photoUrl || "";
     }
@@ -902,20 +959,31 @@
   }
 
   function attachEvents() {
+    map.on("click", () => {
+      if (!state.stepModeEnabled) {
+        hideSpotDetails();
+      }
+    });
+
     elements.stepModeToggle.addEventListener("click", toggleStepMode);
     stepOverlay.addEventListener("click", (event) => {
       event.stopPropagation();
       const navButton = event.target.closest("[data-step-nav]");
-      if (navButton) {
-        if (navButton.dataset.stepNav === "prev") {
-          moveSpot(-1);
-        } else if (navButton.dataset.stepNav === "next") {
-          moveSpot(1);
-        }
+      if (!navButton) {
         return;
       }
 
-      if (!state.stepModeEnabled) {
+      if (navButton.dataset.stepNav === "prev") {
+        moveSpot(-1);
+        return;
+      }
+
+      if (navButton.dataset.stepNav === "next") {
+        moveSpot(1);
+        return;
+      }
+
+      if (navButton.dataset.stepNav === "close") {
         hideSpotDetails();
       }
     });
