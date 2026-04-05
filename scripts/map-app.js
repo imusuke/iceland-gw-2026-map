@@ -12,6 +12,8 @@
     exitFullscreen: "全画面終了",
     guide: "ガイド",
     closeGuide: "ガイドを閉じる",
+    spotDetails: "スポット詳細",
+    readOnDetailsPage: "詳細ページで読む",
     tripProgress: (current, total) => `旅程 ${current} / ${total}`
   };
 
@@ -54,6 +56,28 @@
   const segmentArrows = [];
   const routeGeometryCache = new Map();
   const ROUTE_CACHE_PREFIX = "iceland-route-geometry-v1:";
+
+  function buildSpotDetailsPath(index) {
+    return `/spots#spot-${index + 1}`;
+  }
+
+  function buildSpotMapPath(index) {
+    return `/map?spot=${index + 1}`;
+  }
+
+  function parseRequestedSpotIndex() {
+    const currentUrl = new URL(window.location.href);
+    const spotParam = currentUrl.searchParams.get("spot");
+    const hashMatch = currentUrl.hash.match(/^#spot-(\d+)$/);
+    const rawIndex = spotParam || (hashMatch ? hashMatch[1] : "");
+    const parsedIndex = Number(rawIndex);
+
+    if (!Number.isInteger(parsedIndex) || parsedIndex < 1 || parsedIndex > routeStops.length) {
+      return null;
+    }
+
+    return parsedIndex - 1;
+  }
 
   function getRouteCacheKey(fromStop, toStop) {
     return `${fromStop.lat},${fromStop.lng}->${toStop.lat},${toStop.lng}`;
@@ -384,6 +408,7 @@
     `;
 
     const links = [];
+    links.push(`<a class="map-tooltip-link map-tooltip-link-strong" href="${buildSpotDetailsPath(index)}">${uiLabels.readOnDetailsPage}</a>`);
     if (stop.officialUrl) {
       links.push(`<a class="map-tooltip-link" href="${stop.officialUrl}" target="_blank" rel="noreferrer">${stop.officialLabel || "公式情報"}</a>`);
     }
@@ -746,6 +771,21 @@
     showSpotDetails(state.currentStepIndex);
   }
 
+  function focusSpot(index) {
+    const entry = markers[index];
+    if (!entry) {
+      return;
+    }
+
+    state.currentStepIndex = index;
+    applyVisibility();
+    map.setView(entry.marker.getLatLng(), 8, {
+      animate: false
+    });
+    loadPhotoForStop(entry.stop, index);
+    showSpotDetails(index);
+  }
+
   function moveStep(delta) {
     const nextIndex = state.currentStepIndex + delta;
     if (nextIndex < 0 || nextIndex >= routeStops.length) {
@@ -888,6 +928,10 @@
     syncFullscreenLabel();
     resetMapView();
     applyVisibility();
+    const requestedSpotIndex = parseRequestedSpotIndex();
+    if (requestedSpotIndex !== null) {
+      focusSpot(requestedSpotIndex);
+    }
     window.setTimeout(() => {
       enhanceSegmentLayers();
     }, 50);

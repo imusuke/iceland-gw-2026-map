@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0e7490" />
+  <title>アイスランド GW 2026 スポット詳細</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+  <link rel="stylesheet" href="/styles/spots.css" />
+</head>
+<body>
+  <main class="details-shell">
+    <header class="details-hero">
+      <div class="hero-copy">
+        <p class="hero-eyebrow">Iceland GW 2026</p>
+        <h1>スポット詳細ページ</h1>
+        <p class="hero-lead">
+          マップ上の各スポットを、旅程メモと成り立ちの説明つきで読みやすくまとめたページです。
+          気になる場所から地図へ戻り、そのまま位置を確認できます。
+        </p>
+      </div>
+
+      <div class="hero-meta">
+        <p class="hero-meta-item" id="trip-period"></p>
+        <p class="hero-meta-item" id="spot-count"></p>
+      </div>
+
+      <div class="hero-actions">
+        <a class="action-button primary" href="/map">マップを見る</a>
+      </div>
+    </header>
+
+    <div class="details-layout">
+      <nav class="spot-index" aria-label="スポット一覧">
+        <div class="spot-index-panel">
+          <p class="section-eyebrow">Spot Index</p>
+          <div class="spot-index-list" id="spot-index-list"></div>
+        </div>
+      </nav>
+
+      <section class="spot-groups" id="spot-groups"></section>
+    </div>
+  </main>
+
+  <script src="/data/route-data.js"></script>
+  <script src="/scripts/spots-app.js"></script>
+</body>
+</html>

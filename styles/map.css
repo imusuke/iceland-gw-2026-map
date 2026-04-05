@@ -273,6 +273,13 @@ body {
   transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
+.control-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 .map-control-button:hover {
   transform: translateY(-1px);
 }
@@ -597,6 +604,10 @@ body {
   font-size: 0.76rem;
   font-weight: 700;
   text-decoration: none;
+}
+
+.map-tooltip-link-strong {
+  color: #92400e;
 }
 
 .map-tooltip-link:hover {
