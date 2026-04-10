@@ -113,6 +113,12 @@ body {
   color: var(--muted);
 }
 
+.section-note {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
 .history-links,
 .history-summary {
   margin-top: 24px;
