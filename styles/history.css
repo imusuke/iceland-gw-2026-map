@@ -43,15 +43,32 @@ body {
 .history-summary {
   border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: 28px;
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.6));
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
 }
 
 .history-hero {
   display: grid;
   gap: 18px;
   padding: 30px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.6));
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.history-section,
+.history-links,
+.history-summary {
+  background: rgba(255, 252, 247, 0.96);
+  box-shadow: 0 16px 36px rgba(24, 50, 61, 0.1);
+  content-visibility: auto;
+}
+
+.history-links,
+.history-summary {
+  contain-intrinsic-size: 520px;
+}
+
+.history-section {
+  contain-intrinsic-size: 1800px;
 }
 
 .section-heading {
@@ -169,6 +186,8 @@ body {
   padding: 18px;
   border: 1px solid rgba(24, 50, 61, 0.08);
   background: var(--panel);
+  content-visibility: auto;
+  contain-intrinsic-size: 280px;
 }
 
 .geology-section .era-card {
@@ -197,6 +216,8 @@ body {
   border: 1px solid rgba(24, 50, 61, 0.08);
   background:
     linear-gradient(150deg, rgba(255, 255, 255, 0.84), rgba(247, 240, 232, 0.7));
+  content-visibility: auto;
+  contain-intrinsic-size: 220px;
 }
 
 @media (max-width: 1120px) {
