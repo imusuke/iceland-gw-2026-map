@@ -298,6 +298,24 @@ body {
   border-top: 1px solid rgba(21, 94, 117, 0.12);
 }
 
+.map-mobile-nav {
+  display: none;
+}
+
+.map-mobile-nav summary {
+  list-style: none;
+}
+
+.map-mobile-nav summary::-webkit-details-marker {
+  display: none;
+}
+
+.map-mobile-nav-links {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .panel-title {
   margin: 0 0 10px;
   font-size: 0.86rem;
@@ -775,7 +793,7 @@ body {
   }
 
   .route-status-panel {
-    top: calc(164px + env(safe-area-inset-top));
+    top: calc(122px + env(safe-area-inset-top));
     left: 10px;
     right: 10px;
     max-width: none;
@@ -798,24 +816,37 @@ body {
   }
 
   .controls-stack {
-    justify-items: stretch;
+    justify-items: end;
     gap: 8px;
   }
 
   .map-control-row {
-    display: grid;
-    grid-template-columns: 1fr;
-    justify-content: stretch;
-    width: 100%;
+    width: auto;
   }
 
-  .map-control-button,
-  .control-link {
-    width: 100%;
+  .map-action-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    justify-content: end;
+    gap: 8px;
+  }
+
+  .map-action-buttons .map-control-button {
+    width: auto;
   }
 
   .map-page-links {
-    padding-top: 8px;
+    display: none;
+  }
+
+  .map-mobile-nav {
+    display: block;
+    width: auto;
+  }
+
+  .map-mobile-nav-links .map-control-button,
+  .map-mobile-nav-links .control-link {
+    width: 100%;
   }
 
   .map-tooltip {
@@ -860,12 +891,31 @@ body {
     font-size: 0.78rem;
   }
 
+  .route-status-panel {
+    top: calc(176px + env(safe-area-inset-top));
+  }
+
   .map-tooltip {
     padding: 10px 10px 6px;
   }
 
   .map-tooltip-title {
     font-size: 0.94rem;
+  }
+
+  .map-action-buttons {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .map-action-buttons .map-control-button,
+  .map-mobile-nav,
+  .map-mobile-nav summary {
+    width: 100%;
+  }
+
+  .map-tooltip-gauges {
+    grid-template-columns: 1fr;
   }
 
   .map-tooltip-summary,

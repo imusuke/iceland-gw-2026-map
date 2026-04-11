@@ -21,7 +21,7 @@
     <div id="map" aria-label="アイスランド旅行のルートマップ"></div>
 
     <section class="floating-panel top-right controls-stack">
-      <div class="map-control-row" aria-label="地図の操作">
+      <div class="map-control-row map-action-buttons" aria-label="地図の操作">
         <button type="button" class="map-control-button" id="fullscreen-button">全画面</button>
         <button type="button" class="map-control-button" id="step-mode-toggle">ガイド</button>
       </div>
@@ -31,6 +31,15 @@
         <a class="map-control-button control-link" href="/spots">スポット詳細</a>
         <a class="map-control-button control-link" href="/history">アイスランド史</a>
       </nav>
+
+      <details class="map-mobile-nav">
+        <summary class="map-control-button">ページ移動</summary>
+        <nav class="map-mobile-nav-links" aria-label="主要ページ（モバイル）">
+          <span class="map-control-button map-control-current" aria-current="page">ルートマップ</span>
+          <a class="map-control-button control-link" href="/spots">スポット詳細</a>
+          <a class="map-control-button control-link" href="/history">アイスランド史</a>
+        </nav>
+      </details>
     </section>
 
     <section class="floating-panel bottom-right step-controls hidden" id="step-controls">
