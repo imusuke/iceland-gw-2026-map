@@ -216,29 +216,30 @@
   }
 
   function buildStepMetaText(stop) {
+    const compact = usesCompactControls();
     const bits = [];
 
     if (stop.arrivalTime) {
-      bits.push(`到着 ${stop.arrivalTime}`);
+      bits.push(`${compact ? "着" : "到着"} ${stop.arrivalTime}`);
     }
 
     if (stop.departureTime) {
-      bits.push(`出発 ${stop.departureTime}`);
+      bits.push(`${compact ? "発" : "出発"} ${stop.departureTime}`);
     }
 
     if (stop.stayDuration) {
-      bits.push(`滞在 ${stop.stayDuration}`);
+      bits.push(`${compact ? "滞" : "滞在"} ${stop.stayDuration}`);
     }
 
-    return bits.length > 0 ? bits.join(" / ") : "時間情報は未設定";
+    return bits.length > 0 ? bits.join(" / ") : compact ? "時間未設定" : "時間情報は未設定";
   }
 
   function buildStepTravelText(stop) {
     if (!stop.distanceFromPrev) {
-      return "旅のスタート地点";
+      return usesCompactControls() ? "出発地点" : "旅のスタート地点";
     }
 
-    return `前の区間 ${stop.distanceFromPrev}${stop.driveTimeFromPrev ? ` / ${stop.driveTimeFromPrev}` : ""}`;
+    return `${usesCompactControls() ? "前区間" : "前の区間"} ${stop.distanceFromPrev}${stop.driveTimeFromPrev ? ` / ${stop.driveTimeFromPrev}` : ""}`;
   }
 
   function buildStepNoteText(stop) {
