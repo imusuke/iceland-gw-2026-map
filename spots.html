@@ -38,8 +38,17 @@
     <div class="details-layout">
       <nav class="spot-index" aria-label="スポット一覧">
         <div class="spot-index-panel">
-          <p class="section-eyebrow">スポット一覧</p>
-          <div class="spot-index-list" id="spot-index-list"></div>
+          <details
+            class="spot-index-disclosure"
+            data-open-label="一覧を開く"
+            data-close-label="一覧を閉じる"
+          >
+            <summary class="spot-index-summary">
+              <span class="section-eyebrow">スポット一覧</span>
+              <span class="spot-index-summary-copy">一覧を開く</span>
+            </summary>
+            <div class="spot-index-list" id="spot-index-list"></div>
+          </details>
         </div>
       </nav>
 

@@ -91,6 +91,15 @@ body {
   box-shadow: 0 14px 28px rgba(23, 42, 58, 0.1);
 }
 
+.spot-index-disclosure {
+  display: grid;
+  gap: 14px;
+}
+
+.spot-index-summary {
+  display: none;
+}
+
 .spot-index-list {
   display: grid;
   gap: 10px;
@@ -408,7 +417,12 @@ body {
   }
 
   .spot-index-list {
-    grid-template-columns: 1fr;
+    display: flex;
+    gap: 8px;
+    margin-top: 0;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scroll-snap-type: x proximity;
   }
 
   .spot-actions,
@@ -419,6 +433,55 @@ body {
   .action-button,
   .spot-link {
     width: 100%;
+  }
+
+  .spot-index-panel {
+    padding: 14px;
+  }
+
+  .spot-index-disclosure {
+    gap: 10px;
+  }
+
+  .spot-index-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.84);
+    border: 1px solid rgba(23, 42, 58, 0.08);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .spot-index-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .spot-index-summary-copy {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 10px;
+    min-width: 6.8rem;
+    border-radius: 999px;
+    background: rgba(14, 116, 144, 0.08);
+    color: var(--accent-strong);
+    font-size: 0.8rem;
+    font-weight: 800;
+  }
+
+  .spot-index-disclosure[open] .spot-index-summary-copy {
+    background: rgba(245, 158, 11, 0.12);
+    color: #92400e;
+  }
+
+  .spot-index-link {
+    flex: 0 0 min(220px, calc(100vw - 72px));
+    scroll-snap-align: start;
   }
 }
 
@@ -438,6 +501,7 @@ body {
 
   .spot-index-link {
     padding: 9px 10px;
+    flex-basis: min(204px, calc(100vw - 56px));
   }
 
   .spot-title {

@@ -33,10 +33,15 @@
     ? shared.loadReferencePhoto
     : async (stop) => stop.photoUrl || "";
   const supportsIntersectionObserver = typeof window.IntersectionObserver === "function";
+  const compactSpotIndexMediaQuery = typeof window.matchMedia === "function"
+    ? window.matchMedia("(max-width: 760px)")
+    : null;
   let photoObserver = null;
   const elements = {
     tripPeriod: document.getElementById("trip-period"),
     spotCount: document.getElementById("spot-count"),
+    spotIndexDisclosure: document.querySelector(".spot-index-disclosure"),
+    spotIndexSummaryCopy: document.querySelector(".spot-index-summary-copy"),
     spotIndexList: document.getElementById("spot-index-list"),
     spotGroups: document.getElementById("spot-groups")
   };
@@ -315,6 +320,29 @@
     return article;
   }
 
+  function isCompactSpotIndexLayout() {
+    return compactSpotIndexMediaQuery ? compactSpotIndexMediaQuery.matches : false;
+  }
+
+  function updateSpotIndexSummaryCopy() {
+    if (!elements.spotIndexDisclosure || !elements.spotIndexSummaryCopy) {
+      return;
+    }
+
+    const openLabel = elements.spotIndexDisclosure.dataset.openLabel || "一覧を開く";
+    const closeLabel = elements.spotIndexDisclosure.dataset.closeLabel || "一覧を閉じる";
+    elements.spotIndexSummaryCopy.textContent = elements.spotIndexDisclosure.open ? closeLabel : openLabel;
+  }
+
+  function syncSpotIndexDisclosure() {
+    if (!elements.spotIndexDisclosure) {
+      return;
+    }
+
+    elements.spotIndexDisclosure.open = !isCompactSpotIndexLayout();
+    updateSpotIndexSummaryCopy();
+  }
+
   function renderSpotIndex(stops) {
     const fragment = document.createDocumentFragment();
 
@@ -359,6 +387,34 @@
     elements.spotCount.textContent = `${routeStops.length} スポット`;
     renderSpotIndex(routeStops);
     renderSpotGroups(groupStopsByDay(routeStops));
+    syncSpotIndexDisclosure();
+
+    if (elements.spotIndexDisclosure) {
+      elements.spotIndexDisclosure.addEventListener("toggle", updateSpotIndexSummaryCopy);
+    }
+
+    if (compactSpotIndexMediaQuery) {
+      const handleCompactLayoutChange = () => {
+        syncSpotIndexDisclosure();
+      };
+      if (typeof compactSpotIndexMediaQuery.addEventListener === "function") {
+        compactSpotIndexMediaQuery.addEventListener("change", handleCompactLayoutChange);
+      } else if (typeof compactSpotIndexMediaQuery.addListener === "function") {
+        compactSpotIndexMediaQuery.addListener(handleCompactLayoutChange);
+      }
+    }
+
+    if (elements.spotIndexList) {
+      elements.spotIndexList.addEventListener("click", (event) => {
+        const link = event.target.closest(".spot-index-link");
+        if (!link || !elements.spotIndexDisclosure || !isCompactSpotIndexLayout()) {
+          return;
+        }
+
+        elements.spotIndexDisclosure.open = false;
+        updateSpotIndexSummaryCopy();
+      });
+    }
   }
 
   init();
