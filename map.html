@@ -43,7 +43,15 @@
     </section>
 
     <section class="floating-panel bottom-right step-controls hidden" id="step-controls">
-      <p class="panel-title" id="step-progress-label">旅程 1 / 1</p>
+      <div class="step-controls-header">
+        <p class="panel-title" id="step-progress-label">旅程 1 / 1</p>
+        <button type="button" class="map-control-button step-detail-toggle" id="step-detail-toggle">詳細</button>
+      </div>
+      <p class="step-current-stop" id="step-current-stop">スポット名</p>
+      <div class="step-nav-buttons">
+        <button type="button" class="map-control-button" id="step-prev-button">前へ</button>
+        <button type="button" class="map-control-button" id="step-next-button">次へ</button>
+      </div>
     </section>
   </main>
 

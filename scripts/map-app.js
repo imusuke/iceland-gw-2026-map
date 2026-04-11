@@ -40,7 +40,11 @@
     fullscreenButton: document.getElementById("fullscreen-button"),
     stepModeToggle: document.getElementById("step-mode-toggle"),
     stepControls: document.getElementById("step-controls"),
-    stepProgressLabel: document.getElementById("step-progress-label")
+    stepProgressLabel: document.getElementById("step-progress-label"),
+    stepCurrentStop: document.getElementById("step-current-stop"),
+    stepDetailToggle: document.getElementById("step-detail-toggle"),
+    stepPrevButton: document.getElementById("step-prev-button"),
+    stepNextButton: document.getElementById("step-next-button")
   };
 
   const stepOverlay = document.createElement("section");
@@ -171,6 +175,14 @@
     return Boolean(compactControlsMediaQuery && compactControlsMediaQuery.matches);
   }
 
+  function isStepOverlayVisible() {
+    return !stepOverlay.classList.contains("hidden");
+  }
+
+  function shouldAutoOpenGuideDetails() {
+    return !usesCompactControls();
+  }
+
   function getGuideToggleLabel() {
     if (!state.stepModeEnabled) {
       return uiLabels.guide;
@@ -190,6 +202,14 @@
   function syncControlLabels() {
     elements.stepModeToggle.textContent = getGuideToggleLabel();
     elements.fullscreenButton.textContent = getFullscreenLabel();
+  }
+
+  function getStepDetailToggleLabel() {
+    if (!isStepOverlayVisible()) {
+      return "詳細";
+    }
+
+    return usesCompactControls() ? uiLabels.close : "詳細を閉じる";
   }
 
   async function fetchRouteGeometry(fromStop, toStop) {
@@ -662,6 +682,7 @@
     mountMapJournalSection(entry.stop, index);
     stepOverlay.classList.remove("hidden");
     state.activeSpotIndex = index;
+    updateStepControls();
   }
 
   function hideStepOverlay() {
@@ -675,6 +696,7 @@
     stepOverlay.style.width = "";
     stepOverlay.style.maxHeight = "";
     stepOverlay.innerHTML = "";
+    updateStepControls();
   }
 
   function showSpotDetails(index) {
@@ -944,6 +966,10 @@
       state.currentStepIndex + 1,
       routeStops.length
     );
+    elements.stepCurrentStop.textContent = `${routeStops[state.currentStepIndex].day} · ${routeStops[state.currentStepIndex].name}`;
+    elements.stepDetailToggle.textContent = getStepDetailToggleLabel();
+    elements.stepPrevButton.disabled = state.currentStepIndex <= 0;
+    elements.stepNextButton.disabled = state.currentStepIndex >= routeStops.length - 1;
   }
 
   function applyVisibility() {
@@ -983,14 +1009,24 @@
     updateStepControls();
   }
 
-  function focusCurrentStep() {
+  function focusCurrentStep(options = {}) {
+    const { openDetails = true } = options;
     const current = markers[state.currentStepIndex];
     if (!current) {
       return;
     }
 
+    map.setView(current.marker.getLatLng(), Math.max(map.getZoom(), 6), {
+      animate: false
+    });
     loadPhotoForStop(current.stop, state.currentStepIndex);
-    showSpotDetails(state.currentStepIndex);
+    if (openDetails) {
+      showSpotDetails(state.currentStepIndex);
+      return;
+    }
+
+    hideSpotDetails();
+    updateStepControls();
   }
 
   function focusSpot(index) {
@@ -1016,7 +1052,9 @@
 
     state.currentStepIndex = nextIndex;
     applyVisibility();
-    focusCurrentStep();
+    focusCurrentStep({
+      openDetails: isStepOverlayVisible() || shouldAutoOpenGuideDetails()
+    });
   }
 
   function moveSpot(delta) {
@@ -1047,7 +1085,9 @@
     if (state.stepModeEnabled) {
       applyVisibility();
       hideSpotDetails();
-      focusCurrentStep();
+      focusCurrentStep({
+        openDetails: shouldAutoOpenGuideDetails()
+      });
       return;
     }
 
@@ -1068,6 +1108,35 @@
     });
 
     elements.stepModeToggle.addEventListener("click", toggleStepMode);
+    elements.stepDetailToggle.addEventListener("click", () => {
+      if (!state.stepModeEnabled) {
+        return;
+      }
+
+      if (isStepOverlayVisible()) {
+        hideSpotDetails();
+        return;
+      }
+
+      focusCurrentStep({ openDetails: true });
+    });
+
+    elements.stepPrevButton.addEventListener("click", () => {
+      if (!state.stepModeEnabled) {
+        return;
+      }
+
+      moveStep(-1);
+    });
+
+    elements.stepNextButton.addEventListener("click", () => {
+      if (!state.stepModeEnabled) {
+        return;
+      }
+
+      moveStep(1);
+    });
+
     stepOverlay.addEventListener("click", (event) => {
       event.stopPropagation();
       const navButton = event.target.closest("[data-step-nav]");

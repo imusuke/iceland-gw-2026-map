@@ -257,7 +257,7 @@ body {
     right: 10px;
     transform: none;
     width: auto;
-    max-height: min(72vh, calc(100vh - 120px - env(safe-area-inset-bottom)));
+    max-height: min(54vh, calc(100vh - 180px - env(safe-area-inset-bottom)));
     padding: 10px;
   }
 
@@ -323,6 +323,44 @@ body {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--accent-strong);
+}
+
+.step-controls {
+  display: grid;
+  gap: 8px;
+  min-width: 250px;
+}
+
+.step-controls-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.step-controls .panel-title {
+  margin: 0;
+}
+
+.step-detail-toggle {
+  min-height: 34px;
+  padding: 7px 12px;
+}
+
+.step-current-stop {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.step-nav-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.step-nav-buttons .map-control-button {
+  flex: 1 1 0;
 }
 
 .map-control-button {
@@ -798,7 +836,7 @@ body {
 
   .route-status-panel {
     top: auto;
-    bottom: calc(56px + env(safe-area-inset-bottom));
+    bottom: calc(108px + env(safe-area-inset-bottom));
     left: 10px;
     right: 10px;
     max-width: none;
@@ -911,7 +949,7 @@ body {
   }
 
   .route-status-panel {
-    bottom: calc(50px + env(safe-area-inset-bottom));
+    bottom: calc(124px + env(safe-area-inset-bottom));
   }
 
   .map-tooltip {
@@ -930,6 +968,32 @@ body {
   .map-mobile-nav,
   .map-mobile-nav summary {
     width: auto;
+  }
+
+  .step-controls {
+    min-width: 0;
+    gap: 6px;
+  }
+
+  .step-controls-header {
+    align-items: stretch;
+  }
+
+  .step-controls .panel-title {
+    font-size: 0.78rem;
+  }
+
+  .step-current-stop {
+    font-size: 0.8rem;
+  }
+
+  .step-detail-toggle {
+    min-height: 32px;
+    padding-inline: 10px;
+  }
+
+  .step-nav-buttons {
+    gap: 6px;
   }
 
   .map-tooltip-gauges {
