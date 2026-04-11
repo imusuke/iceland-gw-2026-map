@@ -74,6 +74,7 @@ body {
 .spot-index {
   position: sticky;
   top: 18px;
+  min-width: 0;
 }
 
 .spot-index-panel,
@@ -155,6 +156,7 @@ body {
 .spot-groups {
   display: grid;
   gap: 20px;
+  min-width: 0;
 }
 
 .day-group {
@@ -162,6 +164,7 @@ body {
   padding: 18px;
   display: grid;
   gap: 16px;
+  min-width: 0;
   content-visibility: auto;
   contain-intrinsic-size: 900px;
 }
@@ -194,6 +197,7 @@ body {
   border-radius: 24px;
   padding: 20px;
   scroll-margin-top: 24px;
+  min-width: 0;
   content-visibility: auto;
   contain-intrinsic-size: 760px;
 }
@@ -433,12 +437,8 @@ body {
   }
 
   .spot-index-list {
-    display: flex;
-    gap: 8px;
+    display: none;
     margin-top: 0;
-    overflow-x: auto;
-    padding-bottom: 2px;
-    scroll-snap-type: x proximity;
   }
 
   .spot-actions,
@@ -493,6 +493,14 @@ body {
   .spot-index-disclosure[open] .spot-index-summary-copy {
     background: rgba(245, 158, 11, 0.12);
     color: #92400e;
+  }
+
+  .spot-index-disclosure[open] .spot-index-list {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scroll-snap-type: x proximity;
   }
 
   .spot-index-link {
