@@ -81,6 +81,9 @@
   const routeGeometryCache = new Map();
   const ROUTE_CACHE_PREFIX = "iceland-route-geometry-v1:";
   const ROUTE_FETCH_CONCURRENCY = 2;
+  const compactControlsMediaQuery = typeof window.matchMedia === "function"
+    ? window.matchMedia("(max-width: 700px)")
+    : null;
 
   function parseRequestedSpotIndex() {
     const currentUrl = new URL(window.location.href);
@@ -162,6 +165,31 @@
     window.setTimeout(() => {
       void callback();
     }, 180);
+  }
+
+  function usesCompactControls() {
+    return Boolean(compactControlsMediaQuery && compactControlsMediaQuery.matches);
+  }
+
+  function getGuideToggleLabel() {
+    if (!state.stepModeEnabled) {
+      return uiLabels.guide;
+    }
+
+    return usesCompactControls() ? uiLabels.close : uiLabels.closeGuide;
+  }
+
+  function getFullscreenLabel() {
+    if (document.fullscreenElement === elements.mapElement) {
+      return usesCompactControls() ? uiLabels.close : uiLabels.exitFullscreen;
+    }
+
+    return uiLabels.fullscreen;
+  }
+
+  function syncControlLabels() {
+    elements.stepModeToggle.textContent = getGuideToggleLabel();
+    elements.fullscreenButton.textContent = getFullscreenLabel();
   }
 
   async function fetchRouteGeometry(fromStop, toStop) {
@@ -1013,9 +1041,7 @@
 
   function toggleStepMode() {
     state.stepModeEnabled = !state.stepModeEnabled;
-    elements.stepModeToggle.textContent = state.stepModeEnabled
-      ? uiLabels.closeGuide
-      : uiLabels.guide;
+    syncControlLabels();
     elements.stepModeToggle.classList.toggle("active", state.stepModeEnabled);
 
     if (state.stepModeEnabled) {
@@ -1031,10 +1057,7 @@
   }
 
   function syncFullscreenLabel() {
-    elements.fullscreenButton.textContent =
-      document.fullscreenElement === elements.mapElement
-        ? uiLabels.exitFullscreen
-        : uiLabels.fullscreen;
+    syncControlLabels();
   }
 
   function attachEvents() {
@@ -1124,6 +1147,12 @@
         resetMapView();
       }, 120);
     });
+
+    if (compactControlsMediaQuery) {
+      compactControlsMediaQuery.addEventListener("change", () => {
+        syncControlLabels();
+      });
+    }
   }
 
   function init() {
