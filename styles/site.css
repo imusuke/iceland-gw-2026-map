@@ -2,6 +2,10 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 .hero-copy {
   display: grid;
   gap: 10px;
@@ -93,6 +97,23 @@
 }
 
 @media (max-width: 760px) {
+  .hero-copy {
+    gap: 8px;
+  }
+
+  .hero-lead {
+    font-size: 0.96rem;
+    line-height: 1.72;
+  }
+
+  .hero-meta {
+    flex-direction: column;
+  }
+
+  .hero-meta-item {
+    width: 100%;
+  }
+
   .page-nav,
   .hero-jumps {
     flex-direction: column;

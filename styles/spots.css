@@ -33,7 +33,7 @@ body {
 .details-shell {
   width: min(1360px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 28px 0 48px;
+  padding: 28px max(0px, env(safe-area-inset-right)) calc(48px + env(safe-area-inset-bottom)) max(0px, env(safe-area-inset-left));
 }
 
 .details-hero {
@@ -368,7 +368,7 @@ body {
 
 @media (max-width: 760px) {
   .details-shell {
-    width: min(100% - 20px, 100%);
+    width: calc(100% - 20px);
     padding-top: 18px;
   }
 
@@ -378,8 +378,29 @@ body {
     padding: 16px;
   }
 
+  .details-hero {
+    border-radius: 24px;
+  }
+
+  .details-hero h1 {
+    font-size: clamp(2rem, 9vw, 3rem);
+  }
+
+  .day-group-title {
+    font-size: 1.15rem;
+  }
+
+  .spot-card-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .spot-card-body {
     grid-template-columns: 1fr;
+  }
+
+  .spot-figure {
+    aspect-ratio: 16 / 10;
   }
 
   .spot-meta {
@@ -398,5 +419,33 @@ body {
   .action-button,
   .spot-link {
     width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .details-shell {
+    width: calc(100% - 16px);
+    padding-top: 12px;
+  }
+
+  .details-hero,
+  .day-group,
+  .spot-card,
+  .spot-index-panel {
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .spot-index-link {
+    padding: 9px 10px;
+  }
+
+  .spot-title {
+    font-size: 1.2rem;
+  }
+
+  .spot-summary,
+  .spot-detail-copy {
+    line-height: 1.68;
   }
 }

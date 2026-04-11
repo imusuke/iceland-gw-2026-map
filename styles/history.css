@@ -34,7 +34,7 @@ body {
 .history-shell {
   width: min(1360px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 28px 0 56px;
+  padding: 28px max(0px, env(safe-area-inset-right)) calc(56px + env(safe-area-inset-bottom)) max(0px, env(safe-area-inset-left));
 }
 
 .history-hero,
@@ -155,7 +155,7 @@ body {
 }
 
 .history-link-card:hover {
-  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.82);
 }
 
 .geology-card {
@@ -242,7 +242,7 @@ body {
 
 @media (max-width: 760px) {
   .history-shell {
-    width: min(100% - 20px, 100%);
+    width: calc(100% - 20px);
     padding-top: 18px;
   }
 
@@ -254,8 +254,47 @@ body {
     border-radius: 24px;
   }
 
+  .history-hero h1 {
+    font-size: clamp(2.1rem, 9vw, 3.3rem);
+  }
+
+  .section-heading h2 {
+    font-size: 1.55rem;
+  }
+
   .history-link-grid {
     grid-template-columns: 1fr;
   }
 
+  .era-card,
+  .summary-card,
+  .history-link-card {
+    padding: 16px;
+  }
+
+  .section-note {
+    font-size: 0.88rem;
+    line-height: 1.62;
+  }
+}
+
+@media (max-width: 420px) {
+  .history-shell {
+    width: calc(100% - 16px);
+    padding-top: 12px;
+  }
+
+  .history-hero,
+  .history-section,
+  .history-links,
+  .history-summary {
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .era-card h3,
+  .summary-card h3,
+  .history-link-card h3 {
+    font-size: 1.04rem;
+  }
 }

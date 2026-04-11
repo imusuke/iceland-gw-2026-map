@@ -253,16 +253,18 @@ body {
 
 @media (max-width: 640px) {
   .step-overlay {
-    left: 16px;
-    right: 16px;
+    left: 10px;
+    right: 10px;
     transform: none;
     width: auto;
+    max-height: min(72vh, calc(100vh - 120px - env(safe-area-inset-bottom)));
+    padding: 10px;
   }
 
   .step-overlay-left-side,
   .step-overlay-right-side {
-    left: 16px;
-    right: 16px;
+    left: 10px;
+    right: 10px;
     transform: none;
   }
 
@@ -773,7 +775,7 @@ body {
   }
 
   .route-status-panel {
-    top: 10px;
+    top: calc(164px + env(safe-area-inset-top));
     left: 10px;
     right: 10px;
     max-width: none;
@@ -787,24 +789,38 @@ body {
   }
 
   .top-right {
-    top: auto;
-    bottom: 74px;
+    top: calc(10px + env(safe-area-inset-top));
+    bottom: auto;
   }
 
   .bottom-right {
-    bottom: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
   }
 
   .controls-stack {
     justify-items: stretch;
+    gap: 8px;
   }
 
   .map-control-row {
-    justify-content: flex-start;
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-content: stretch;
+    width: 100%;
+  }
+
+  .map-control-button,
+  .control-link {
+    width: 100%;
+  }
+
+  .map-page-links {
+    padding-top: 8px;
   }
 
   .map-tooltip {
-    width: min(300px, 78vw);
+    width: 100%;
+    max-width: none;
   }
 
   .map-tooltip-nav {
@@ -824,5 +840,37 @@ body {
   .map-tooltip-timeline-edges,
   .map-tooltip-distance-edges {
     min-height: 92px;
+  }
+}
+
+@media (max-width: 420px) {
+  .floating-panel {
+    max-width: calc(100vw - 16px);
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .map-control-button {
+    min-height: 42px;
+    font-size: 0.84rem;
+    padding: 8px 12px;
+  }
+
+  .route-status-copy {
+    font-size: 0.78rem;
+  }
+
+  .map-tooltip {
+    padding: 10px 10px 6px;
+  }
+
+  .map-tooltip-title {
+    font-size: 0.94rem;
+  }
+
+  .map-tooltip-summary,
+  .map-tooltip-detail {
+    font-size: 0.8rem;
+    line-height: 1.42;
   }
 }
