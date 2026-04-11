@@ -371,7 +371,7 @@
   width: 100%;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 960px) {
   .spot-journal-toggle {
     flex-direction: column;
     align-items: stretch;
@@ -395,5 +395,6 @@
   .journal-submit,
   .journal-entry-button {
     width: 100%;
+    min-width: 0;
   }
 }

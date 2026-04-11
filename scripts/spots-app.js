@@ -34,7 +34,7 @@
     : async (stop) => stop.photoUrl || "";
   const supportsIntersectionObserver = typeof window.IntersectionObserver === "function";
   const compactSpotIndexMediaQuery = typeof window.matchMedia === "function"
-    ? window.matchMedia("(max-width: 760px)")
+    ? window.matchMedia("(max-width: 960px)")
     : null;
   let photoObserver = null;
   const elements = {
