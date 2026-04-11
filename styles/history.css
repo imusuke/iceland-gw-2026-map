@@ -50,15 +50,14 @@ body {
   gap: 18px;
   padding: 30px;
   background: linear-gradient(150deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.6));
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 14px 30px rgba(24, 50, 61, 0.12);
 }
 
 .history-section,
 .history-links,
 .history-summary {
   background: rgba(255, 252, 247, 0.96);
-  box-shadow: 0 16px 36px rgba(24, 50, 61, 0.1);
+  box-shadow: 0 12px 24px rgba(24, 50, 61, 0.08);
   content-visibility: auto;
 }
 

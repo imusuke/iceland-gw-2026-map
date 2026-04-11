@@ -1,9 +1,10 @@
 (function () {
   const JOURNAL_API_PATH = "/api/journal";
   const JOURNAL_MAX_COMMENT_LENGTH = 600;
-  const MAX_IMAGE_DIMENSION = 1800;
-  const MAX_UPLOAD_IMAGE_BYTES = 3.5 * 1024 * 1024;
-  const JPEG_QUALITY = 0.84;
+  const MAX_IMAGE_DIMENSION = 1600;
+  const MAX_UPLOAD_IMAGE_BYTES = 3 * 1024 * 1024;
+  const JPEG_QUALITY = 0.82;
+  const journalEntriesCache = new Map();
   const fullDateTimeFormatter = new Intl.DateTimeFormat("ja-JP", {
     year: "numeric",
     month: "numeric",
@@ -102,6 +103,39 @@
     return `${baseName || "travel-photo"}.${nextExtension}`;
   }
 
+  function cloneJournalEntries(entries) {
+    return Array.isArray(entries)
+      ? entries.map((entry) => ({ ...entry }))
+      : [];
+  }
+
+  function readCachedJournalEntries(spotId) {
+    if (!journalEntriesCache.has(spotId)) {
+      return null;
+    }
+
+    return cloneJournalEntries(journalEntriesCache.get(spotId));
+  }
+
+  function writeCachedJournalEntries(spotId, entries) {
+    journalEntriesCache.set(spotId, cloneJournalEntries(entries));
+  }
+
+  function upsertCachedJournalEntry(spotId, entry) {
+    const currentEntries = cloneJournalEntries(journalEntriesCache.get(spotId) || []);
+    const nextEntries = currentEntries.filter((currentEntry) => currentEntry.id !== entry.id);
+    nextEntries.unshift({ ...entry });
+    writeCachedJournalEntries(spotId, nextEntries);
+  }
+
+  function removeCachedJournalEntry(spotId, entryId) {
+    const currentEntries = cloneJournalEntries(journalEntriesCache.get(spotId) || []);
+    writeCachedJournalEntries(
+      spotId,
+      currentEntries.filter((entry) => entry.id !== entryId)
+    );
+  }
+
   async function loadImageSource(file) {
     if ("createImageBitmap" in window) {
       try {
@@ -135,40 +169,49 @@
     const targetWidth = Math.max(1, Math.round(width * scale));
     const targetHeight = Math.max(1, Math.round(height * scale));
     const canvas = document.createElement("canvas");
-    canvas.width = targetWidth;
-    canvas.height = targetHeight;
 
-    const context = canvas.getContext("2d");
-    if (!context) {
-      throw new Error("画像を処理できませんでした。");
+    try {
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+
+      const context = canvas.getContext("2d");
+      if (!context) {
+        throw new Error("画像を処理できませんでした。");
+      }
+
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, targetWidth, targetHeight);
+      context.drawImage(source, 0, 0, targetWidth, targetHeight);
+
+      const blob = await new Promise((resolve, reject) => {
+        canvas.toBlob(
+          (outputBlob) => {
+            if (!outputBlob) {
+              reject(new Error("画像の圧縮に失敗しました。"));
+              return;
+            }
+            resolve(outputBlob);
+          },
+          "image/jpeg",
+          JPEG_QUALITY
+        );
+      });
+
+      if (blob.size > MAX_UPLOAD_IMAGE_BYTES) {
+        throw new Error("写真が大きすぎます。もう少し小さい画像を選んでください。");
+      }
+
+      return {
+        blob,
+        fileName: replaceFileExtension(file.name || "travel-photo.jpg", "jpg")
+      };
+    } finally {
+      canvas.width = 0;
+      canvas.height = 0;
+      if (typeof source.close === "function") {
+        source.close();
+      }
     }
-
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, targetWidth, targetHeight);
-    context.drawImage(source, 0, 0, targetWidth, targetHeight);
-
-    const blob = await new Promise((resolve, reject) => {
-      canvas.toBlob(
-        (outputBlob) => {
-          if (!outputBlob) {
-            reject(new Error("画像の圧縮に失敗しました。"));
-            return;
-          }
-          resolve(outputBlob);
-        },
-        "image/jpeg",
-        JPEG_QUALITY
-      );
-    });
-
-    if (blob.size > MAX_UPLOAD_IMAGE_BYTES) {
-      throw new Error("写真が大きすぎます。もう少し小さい画像を選んでください。");
-    }
-
-    return {
-      blob,
-      fileName: replaceFileExtension(file.name || "travel-photo.jpg", "jpg")
-    };
   }
 
   function buildJournalFormData({ spotId, entryId, comment, visitedAt, photo }) {
@@ -343,6 +386,7 @@
         })
       });
 
+      upsertCachedJournalEntry(context.spotId, payload.entry);
       replaceJournalEntryCard(context.entryList, payload.entry, context.spotId, context.status);
       setJournalStatus(context.status, "旅の記録を更新しました。", "success");
       setEditMode(false);
@@ -382,6 +426,7 @@
         })
       });
 
+      removeCachedJournalEntry(context.spotId, entry.id);
       removeJournalEntryCard(context.entryList, entry.id);
       setJournalStatus(context.status, "旅の記録を削除しました。", "success");
     } catch (error) {
@@ -591,6 +636,20 @@
   }
 
   async function loadJournalEntries(spotId, form, status, entryList) {
+    const cachedEntries = readCachedJournalEntries(spotId);
+    if (cachedEntries) {
+      setJournalFormEnabled(form, true);
+      if (cachedEntries.length === 0) {
+        renderJournalEmptyState(entryList, "まだ記録はありません。最初の1枚を残せます。");
+        setJournalStatus(status, "まだ記録はありません。", "idle");
+        return;
+      }
+
+      renderJournalEntries(entryList, cachedEntries, spotId, status);
+      setJournalStatus(status, `${cachedEntries.length}件の記録があります。`, "success");
+      return;
+    }
+
     setJournalStatus(status, "記録を読み込んでいます…", "loading");
 
     try {
@@ -602,11 +661,13 @@
       setJournalFormEnabled(form, true);
 
       if (!Array.isArray(payload.entries) || payload.entries.length === 0) {
+        writeCachedJournalEntries(spotId, []);
         renderJournalEmptyState(entryList, "まだ記録はありません。最初の1枚を残せます。");
         setJournalStatus(status, "まだ記録はありません。", "idle");
         return;
       }
 
+      writeCachedJournalEntries(spotId, payload.entries);
       renderJournalEntries(entryList, payload.entries, spotId, status);
       setJournalStatus(status, `${payload.entries.length}件の記録があります。`, "success");
     } catch (error) {
@@ -671,6 +732,7 @@
         body: formData
       });
 
+      upsertCachedJournalEntry(spotId, payload.entry);
       prependJournalEntry(entryList, payload.entry, spotId, status);
       form.reset();
       visitedInput.value = buildVisitedAtDefault(stop, itineraryStart);

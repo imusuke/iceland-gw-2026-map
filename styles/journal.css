@@ -177,11 +177,7 @@
   font: inherit;
   font-weight: 800;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-}
-
-.journal-submit:hover {
-  transform: translateY(-1px);
+  transition: box-shadow 0.18s ease, background 0.18s ease;
 }
 
 .journal-submit-primary {
@@ -323,11 +319,7 @@
   font: inherit;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.18s ease;
-}
-
-.journal-entry-button:hover {
-  transform: translateY(-1px);
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 
 .journal-entry-button:disabled {

@@ -80,6 +80,7 @@
   const segmentArrows = [];
   const routeGeometryCache = new Map();
   const ROUTE_CACHE_PREFIX = "iceland-route-geometry-v1:";
+  const ROUTE_FETCH_CONCURRENCY = 2;
 
   function parseRequestedSpotIndex() {
     const currentUrl = new URL(window.location.href);
@@ -133,6 +134,34 @@
     } catch (_error) {
       // Ignore storage failures and keep the in-memory cache.
     }
+  }
+
+  function yieldToBrowser() {
+    return new Promise((resolve) => {
+      if (typeof window.requestAnimationFrame === "function") {
+        window.requestAnimationFrame(() => resolve());
+        return;
+      }
+
+      window.setTimeout(resolve, 0);
+    });
+  }
+
+  function scheduleDeferredWork(callback, timeout = 1200) {
+    if (typeof callback !== "function") {
+      return;
+    }
+
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(() => {
+        void callback();
+      }, { timeout });
+      return;
+    }
+
+    window.setTimeout(() => {
+      void callback();
+    }, 180);
   }
 
   async function fetchRouteGeometry(fromStop, toStop) {
@@ -412,14 +441,40 @@
       return;
     }
 
-    slot.append(journalUi.createJournalSection({
-      stop,
-      index,
-      itineraryStart,
-      buildSpotId,
-      variant: "compact",
-      note: "地図を見ながら、この場所の写真やコメントを残せます。"
-    }));
+    const disclosure = document.createElement("details");
+    disclosure.className = "map-journal-disclosure";
+
+    const summary = document.createElement("summary");
+    summary.className = "map-journal-toggle";
+    summary.innerHTML = '<span>旅の記録を開く</span><span class="map-journal-toggle-note">必要なときだけ読み込みます</span>';
+
+    const mount = document.createElement("div");
+    let mounted = false;
+
+    const mountJournal = () => {
+      if (mounted) {
+        return;
+      }
+
+      mounted = true;
+      mount.append(journalUi.createJournalSection({
+        stop,
+        index,
+        itineraryStart,
+        buildSpotId,
+        variant: "compact",
+        note: "地図を見ながら、この場所の写真やコメントを残せます。"
+      }));
+    };
+
+    disclosure.addEventListener("toggle", () => {
+      if (disclosure.open) {
+        mountJournal();
+      }
+    });
+
+    disclosure.append(summary, mount);
+    slot.append(disclosure);
   }
 
   function buildTooltipHtml(stop, index) {
@@ -784,6 +839,8 @@
   }
 
   function createSegmentLayers() {
+    let pendingSegments = 0;
+
     routeStops.forEach((stop, index) => {
       if (index === 0) {
         return;
@@ -806,29 +863,51 @@
         arrow: null,
         isResolved: false
       };
+
+      const cachedLatLngs = readCachedRouteGeometry(getRouteCacheKey(prev, stop));
+      if (cachedLatLngs && cachedLatLngs.length >= 2) {
+        segment.setLatLngs(cachedLatLngs);
+        segmentEntry.isResolved = true;
+        updateSegmentArrow(segmentEntry, cachedLatLngs);
+      } else {
+        pendingSegments += 1;
+      }
+
       routeSegments.push(segmentEntry);
     });
     routeSegments.sort((a, b) => a.index - b.index);
-    state.pendingRouteSegments = routeSegments.length;
+    state.pendingRouteSegments = pendingSegments;
     state.failedRouteSegments = [];
     updateRouteStatusPanel();
   }
 
   async function enhanceSegmentLayers() {
-    await Promise.all(routeSegments.map(async (segmentEntry) => {
-      const latLngs = await fetchRouteGeometry(segmentEntry.fromStop, segmentEntry.toStop);
-      if (latLngs && latLngs.length >= 2) {
-        segmentEntry.line.setLatLngs(latLngs);
-        segmentEntry.isResolved = true;
-        updateSegmentArrow(segmentEntry, latLngs);
-      } else {
-        state.failedRouteSegments.push(segmentEntry.index);
-      }
+    const unresolvedSegments = routeSegments.filter((segmentEntry) => !segmentEntry.isResolved);
+    if (unresolvedSegments.length === 0) {
+      updateRouteStatusPanel();
+      return;
+    }
 
-      state.pendingRouteSegments = Math.max(0, state.pendingRouteSegments - 1);
+    for (let start = 0; start < unresolvedSegments.length; start += ROUTE_FETCH_CONCURRENCY) {
+      const batch = unresolvedSegments.slice(start, start + ROUTE_FETCH_CONCURRENCY);
+
+      await Promise.all(batch.map(async (segmentEntry) => {
+        const latLngs = await fetchRouteGeometry(segmentEntry.fromStop, segmentEntry.toStop);
+        if (latLngs && latLngs.length >= 2) {
+          segmentEntry.line.setLatLngs(latLngs);
+          segmentEntry.isResolved = true;
+          updateSegmentArrow(segmentEntry, latLngs);
+        } else if (!state.failedRouteSegments.includes(segmentEntry.index)) {
+          state.failedRouteSegments.push(segmentEntry.index);
+        }
+
+        state.pendingRouteSegments = Math.max(0, state.pendingRouteSegments - 1);
+      }));
+
       updateRouteStatusPanel();
       applyVisibility();
-    }));
+      await yieldToBrowser();
+    }
   }
 
   function updateStepControls() {
@@ -1058,9 +1137,7 @@
     if (requestedSpotIndex !== null) {
       focusSpot(requestedSpotIndex);
     }
-    window.setTimeout(() => {
-      enhanceSegmentLayers();
-    }, 50);
+    scheduleDeferredWork(enhanceSegmentLayers);
   }
 
   init();

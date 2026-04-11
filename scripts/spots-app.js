@@ -316,6 +316,8 @@
   }
 
   function renderSpotIndex(stops) {
+    const fragment = document.createDocumentFragment();
+
     stops.forEach((stop, index) => {
       const link = createLink("spot-index-link", `#${buildSpotId(index)}`, stop.name);
       const badge = createElement("span", "spot-index-number", String(index + 1));
@@ -325,11 +327,15 @@
       copy.append(day, name);
       link.textContent = "";
       link.append(badge, copy);
-      elements.spotIndexList.append(link);
+      fragment.append(link);
     });
+
+    elements.spotIndexList.append(fragment);
   }
 
   function renderSpotGroups(groups) {
+    const fragment = document.createDocumentFragment();
+
     groups.forEach((group) => {
       const section = createElement("section", "day-group");
       const header = createElement("header", "day-group-header");
@@ -342,8 +348,10 @@
         section.append(createSpotCard(stop, index));
       });
 
-      elements.spotGroups.append(section);
+      fragment.append(section);
     });
+
+    elements.spotGroups.append(fragment);
   }
 
   function init() {

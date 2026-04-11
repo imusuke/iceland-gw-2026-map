@@ -2,10 +2,6 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
 .hero-copy {
   display: grid;
   gap: 10px;
@@ -64,11 +60,7 @@ html {
   text-decoration: none;
   font: inherit;
   font-weight: 800;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-}
-
-.action-button:hover {
-  transform: translateY(-1px);
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 
 .action-button.primary {

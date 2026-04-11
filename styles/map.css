@@ -47,9 +47,8 @@ body {
   max-width: min(420px, calc(100vw - 32px));
   padding: 14px;
   border-radius: 18px;
-  background: var(--panel);
-  backdrop-filter: blur(10px);
-  box-shadow: var(--shadow);
+  background: rgba(255, 250, 242, 0.98);
+  box-shadow: 0 12px 28px rgba(23, 42, 58, 0.14);
 }
 
 .top-left {
@@ -320,7 +319,7 @@ body {
   line-height: 1.2;
   white-space: nowrap;
   cursor: pointer;
-  transition: box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .control-link {
@@ -332,7 +331,6 @@ body {
 
 .map-control-button:hover {
   background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 10px 22px rgba(23, 42, 58, 0.12);
 }
 
 .map-control-button.active {
@@ -694,6 +692,40 @@ body {
 
 .map-tooltip-journal-slot {
   min-width: 0;
+}
+
+.map-journal-disclosure {
+  margin-top: 10px;
+  border-top: 1px solid rgba(23, 42, 58, 0.08);
+  padding-top: 10px;
+}
+
+.map-journal-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(21, 94, 117, 0.16);
+  background: rgba(14, 116, 144, 0.08);
+  color: var(--accent-strong);
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+}
+
+.map-journal-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.map-journal-disclosure[open] .map-journal-toggle {
+  margin-bottom: 10px;
+}
+
+.map-journal-toggle-note {
+  color: var(--muted);
+  font-weight: 600;
 }
 
 .map-tooltip-journal-slot:empty {
