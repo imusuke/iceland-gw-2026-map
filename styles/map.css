@@ -354,6 +354,28 @@ body {
   line-height: 1.35;
 }
 
+.step-current-meta,
+.step-current-travel,
+.step-current-note {
+  margin: 0;
+  font-size: 0.77rem;
+  line-height: 1.45;
+}
+
+.step-current-meta {
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+.step-current-travel {
+  color: #92400e;
+  font-weight: 700;
+}
+
+.step-current-note {
+  color: var(--muted);
+}
+
 .step-nav-buttons {
   display: flex;
   gap: 8px;
@@ -985,6 +1007,13 @@ body {
 
   .step-current-stop {
     font-size: 0.8rem;
+  }
+
+  .step-current-meta,
+  .step-current-travel,
+  .step-current-note {
+    font-size: 0.72rem;
+    line-height: 1.4;
   }
 
   .step-detail-toggle {

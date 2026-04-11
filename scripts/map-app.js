@@ -42,6 +42,9 @@
     stepControls: document.getElementById("step-controls"),
     stepProgressLabel: document.getElementById("step-progress-label"),
     stepCurrentStop: document.getElementById("step-current-stop"),
+    stepCurrentMeta: document.getElementById("step-current-meta"),
+    stepCurrentTravel: document.getElementById("step-current-travel"),
+    stepCurrentNote: document.getElementById("step-current-note"),
     stepDetailToggle: document.getElementById("step-detail-toggle"),
     stepPrevButton: document.getElementById("step-prev-button"),
     stepNextButton: document.getElementById("step-next-button")
@@ -210,6 +213,45 @@
     }
 
     return usesCompactControls() ? uiLabels.close : "詳細を閉じる";
+  }
+
+  function buildStepMetaText(stop) {
+    const bits = [];
+
+    if (stop.arrivalTime) {
+      bits.push(`到着 ${stop.arrivalTime}`);
+    }
+
+    if (stop.departureTime) {
+      bits.push(`出発 ${stop.departureTime}`);
+    }
+
+    if (stop.stayDuration) {
+      bits.push(`滞在 ${stop.stayDuration}`);
+    }
+
+    return bits.length > 0 ? bits.join(" / ") : "時間情報は未設定";
+  }
+
+  function buildStepTravelText(stop) {
+    if (!stop.distanceFromPrev) {
+      return "旅のスタート地点";
+    }
+
+    return `前の区間 ${stop.distanceFromPrev}${stop.driveTimeFromPrev ? ` / ${stop.driveTimeFromPrev}` : ""}`;
+  }
+
+  function buildStepNoteText(stop) {
+    const text = String(stop.note || stop.stepHtml || "").trim();
+    if (!text) {
+      return "このスポットのメモはありません。";
+    }
+
+    if (text.length <= 68) {
+      return text;
+    }
+
+    return `${text.slice(0, 68)}…`;
   }
 
   async function fetchRouteGeometry(fromStop, toStop) {
@@ -961,12 +1003,16 @@
   }
 
   function updateStepControls() {
+    const currentStop = routeStops[state.currentStepIndex];
     elements.stepControls.classList.toggle("hidden", !state.stepModeEnabled);
     elements.stepProgressLabel.textContent = uiLabels.tripProgress(
       state.currentStepIndex + 1,
       routeStops.length
     );
-    elements.stepCurrentStop.textContent = `${routeStops[state.currentStepIndex].day} · ${routeStops[state.currentStepIndex].name}`;
+    elements.stepCurrentStop.textContent = `${currentStop.day} · ${currentStop.name}`;
+    elements.stepCurrentMeta.textContent = buildStepMetaText(currentStop);
+    elements.stepCurrentTravel.textContent = buildStepTravelText(currentStop);
+    elements.stepCurrentNote.textContent = buildStepNoteText(currentStop);
     elements.stepDetailToggle.textContent = getStepDetailToggleLabel();
     elements.stepPrevButton.disabled = state.currentStepIndex <= 0;
     elements.stepNextButton.disabled = state.currentStepIndex >= routeStops.length - 1;
