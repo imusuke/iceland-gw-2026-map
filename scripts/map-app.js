@@ -1119,10 +1119,11 @@
       return;
     }
 
+    const keepDetailsOpen = isStepOverlayVisible();
     state.currentStepIndex = nextIndex;
     applyVisibility();
     focusCurrentStep({
-      openDetails: isStepOverlayVisible() || shouldAutoOpenGuideDetails()
+      openDetails: keepDetailsOpen
     });
   }
 
