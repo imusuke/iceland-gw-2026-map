@@ -48,6 +48,7 @@
     stepCurrentTravel: document.getElementById("step-current-travel"),
     stepCurrentNote: document.getElementById("step-current-note"),
     stepDetailToggle: document.getElementById("step-detail-toggle"),
+    stepJournalButton: document.getElementById("step-journal-button"),
     stepPrevButton: document.getElementById("step-prev-button"),
     stepNextButton: document.getElementById("step-next-button")
   };
@@ -534,6 +535,24 @@
     quickToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
   }
 
+  function openStepOverlayJournal() {
+    const disclosure = stepOverlay.querySelector(".map-journal-disclosure");
+    if (!disclosure) {
+      return;
+    }
+
+    if (!disclosure.open) {
+      disclosure.open = true;
+    }
+
+    syncMapJournalQuickToggle(disclosure);
+
+    const journalSlot = stepOverlay.querySelector("[data-map-journal-slot]");
+    if (journalSlot) {
+      journalSlot.scrollIntoView({ block: "nearest" });
+    }
+  }
+
   function mountMapJournalSection(stop, index) {
     const slot = stepOverlay.querySelector("[data-map-journal-slot]");
     if (!slot) {
@@ -711,7 +730,8 @@
     hideStepOverlay();
   }
 
-  function showStepOverlay(index) {
+  function showStepOverlay(index, options = {}) {
+    const { openJournal = false } = options;
     const entry = markers[index];
     if (!entry) {
       return;
@@ -751,6 +771,9 @@
     stepOverlay.style.maxHeight = `${Math.max(280, mapSize.y - verticalMargin)}px`;
     stepOverlay.innerHTML = buildTooltipHtml(entry.stop, index);
     mountMapJournalSection(entry.stop, index);
+    if (openJournal) {
+      openStepOverlayJournal();
+    }
     stepOverlay.classList.remove("hidden");
     state.activeSpotIndex = index;
     updateStepControls();
@@ -770,9 +793,9 @@
     updateStepControls();
   }
 
-  function showSpotDetails(index) {
+  function showSpotDetails(index, options = {}) {
     hideSpotDetails();
-    showStepOverlay(index);
+    showStepOverlay(index, options);
   }
 
   function refreshTooltipPhoto(index) {
@@ -1085,7 +1108,7 @@
   }
 
   function focusCurrentStep(options = {}) {
-    const { openDetails = true } = options;
+    const { openDetails = true, openJournal = false } = options;
     const current = markers[state.currentStepIndex];
     if (!current) {
       return;
@@ -1096,7 +1119,7 @@
     });
     loadPhotoForStop(current.stop, state.currentStepIndex);
     if (openDetails) {
-      showSpotDetails(state.currentStepIndex);
+      showSpotDetails(state.currentStepIndex, { openJournal });
       return;
     }
 
@@ -1195,6 +1218,17 @@
       }
 
       focusCurrentStep({ openDetails: true });
+    });
+
+    elements.stepJournalButton.addEventListener("click", () => {
+      if (!state.stepModeEnabled) {
+        return;
+      }
+
+      focusCurrentStep({
+        openDetails: true,
+        openJournal: true
+      });
     });
 
     elements.stepPrevButton.addEventListener("click", () => {
