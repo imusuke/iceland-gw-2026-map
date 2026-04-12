@@ -15,6 +15,8 @@
     guide: "ガイド",
     closeGuide: "ガイドを閉じる",
     close: "閉じる",
+    openJournal: "旅の記録を開く",
+    closeJournal: "旅の記録を閉じる",
     readOnDetailsPage: shared.labels && shared.labels.readOnDetailsPage
       ? shared.labels.readOnDetailsPage
       : "スポット詳細で読む",
@@ -521,6 +523,17 @@
     return section;
   }
 
+  function syncMapJournalQuickToggle(disclosure) {
+    const quickToggle = stepOverlay.querySelector("[data-step-journal-toggle]");
+    if (!quickToggle) {
+      return;
+    }
+
+    const isOpen = Boolean(disclosure && disclosure.open);
+    quickToggle.textContent = isOpen ? uiLabels.closeJournal : uiLabels.openJournal;
+    quickToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  }
+
   function mountMapJournalSection(stop, index) {
     const slot = stepOverlay.querySelector("[data-map-journal-slot]");
     if (!slot) {
@@ -534,10 +547,11 @@
 
     const disclosure = document.createElement("details");
     disclosure.className = "map-journal-disclosure";
+    disclosure.id = "map-tooltip-journal";
 
     const summary = document.createElement("summary");
     summary.className = "map-journal-toggle";
-    summary.innerHTML = '<span>旅の記録を開く</span><span class="map-journal-toggle-note">必要なときだけ読み込みます</span>';
+    summary.innerHTML = `<span>${uiLabels.openJournal}</span><span class="map-journal-toggle-note">必要なときだけ読み込みます</span>`;
 
     const mount = document.createElement("div");
     let mounted = false;
@@ -562,10 +576,12 @@
       if (disclosure.open) {
         mountJournal();
       }
+      syncMapJournalQuickToggle(disclosure);
     });
 
     disclosure.append(summary, mount);
     slot.append(disclosure);
+    syncMapJournalQuickToggle(disclosure);
   }
 
   function buildTooltipHtml(stop, index) {
@@ -617,12 +633,18 @@
 
     return [
       '<div class="map-tooltip">',
+      '<div class="map-tooltip-sticky">',
       '<div class="map-tooltip-heading">',
       '<div class="map-tooltip-title-group">',
       `<h3 class="map-tooltip-title">${index + 1}. ${stop.name}</h3>`,
       `<span class="map-tooltip-day">${stop.day}</span>`,
       "</div>",
       `<button type="button" class="map-control-button map-tooltip-close" data-step-nav="close">${uiLabels.close}</button>`,
+      "</div>",
+      '<div class="map-tooltip-actions">',
+      navHtml,
+      `<button type="button" class="map-control-button map-tooltip-journal-quick-toggle" data-step-journal-toggle aria-controls="map-tooltip-journal" aria-expanded="false">${uiLabels.openJournal}</button>`,
+      "</div>",
       "</div>",
       '<div class="map-tooltip-main">',
       timeline
@@ -1186,6 +1208,25 @@
 
     stepOverlay.addEventListener("click", (event) => {
       event.stopPropagation();
+      const journalToggle = event.target.closest("[data-step-journal-toggle]");
+      if (journalToggle) {
+        const disclosure = stepOverlay.querySelector(".map-journal-disclosure");
+        if (!disclosure) {
+          return;
+        }
+
+        disclosure.open = !disclosure.open;
+        syncMapJournalQuickToggle(disclosure);
+
+        if (disclosure.open) {
+          const journalSlot = stepOverlay.querySelector("[data-map-journal-slot]");
+          if (journalSlot) {
+            journalSlot.scrollIntoView({ block: "nearest" });
+          }
+        }
+        return;
+      }
+
       const navButton = event.target.closest("[data-step-nav]");
       if (!navButton) {
         return;
