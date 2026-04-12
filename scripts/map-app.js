@@ -185,7 +185,7 @@
   }
 
   function shouldAutoOpenGuideDetails() {
-    return !usesCompactControls();
+    return false;
   }
 
   function getGuideToggleLabel() {
