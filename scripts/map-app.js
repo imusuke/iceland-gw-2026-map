@@ -624,12 +624,18 @@
     if (stop.wikiTitle) {
       links.push(`<a class="map-tooltip-link" href="https://en.wikipedia.org/wiki/${stop.wikiTitle}" target="_blank" rel="noreferrer">${uiLabels.referenceInfo}</a>`);
     }
-    const navHtml = `
-      <div class="map-tooltip-nav">
-        <button type="button" class="map-control-button" data-step-nav="prev" ${index === 0 ? "disabled" : ""}>戻る</button>
-        <button type="button" class="map-control-button" data-step-nav="next" ${index === routeStops.length - 1 ? "disabled" : ""}>次へ</button>
-      </div>
-    `;
+    const showOverlayNav = !state.stepModeEnabled;
+    const navHtml = showOverlayNav
+      ? `
+        <div class="map-tooltip-nav">
+          <button type="button" class="map-control-button" data-step-nav="prev" ${index === 0 ? "disabled" : ""}>戻る</button>
+          <button type="button" class="map-control-button" data-step-nav="next" ${index === routeStops.length - 1 ? "disabled" : ""}>次へ</button>
+        </div>
+      `
+      : "";
+    const actionsClassName = showOverlayNav
+      ? "map-tooltip-actions"
+      : "map-tooltip-actions map-tooltip-actions-single";
 
     return [
       '<div class="map-tooltip">',
@@ -641,7 +647,7 @@
       "</div>",
       `<button type="button" class="map-control-button map-tooltip-close" data-step-nav="close">${uiLabels.close}</button>`,
       "</div>",
-      '<div class="map-tooltip-actions">',
+      `<div class="${actionsClassName}">`,
       navHtml,
       `<button type="button" class="map-control-button map-tooltip-journal-quick-toggle" data-step-journal-toggle aria-controls="map-tooltip-journal" aria-expanded="false">${uiLabels.openJournal}</button>`,
       "</div>",
