@@ -520,7 +520,25 @@ body {
   border: 2px solid rgba(21, 94, 117, 0.95);
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 8px 18px rgba(23, 42, 58, 0.22);
-  font-size: 18px;
+  color: #155e75;
+}
+
+.map-icon-glyph {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+}
+
+.map-icon-glyph svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .map-icon-number {
@@ -545,6 +563,32 @@ body {
 .map-icon-city { background: #ede9fe; }
 .map-icon-nature { background: #dcfce7; }
 .map-icon-stay { background: #fef3c7; }
+.map-icon-bridge,
+.map-icon-hot-spring,
+.map-icon-water,
+.map-icon-hike,
+.map-icon-snow,
+.map-icon-ice,
+.map-icon-mountain {
+  color: #166534;
+}
+
+.map-icon-airport {
+  color: #0f5f8a;
+}
+
+.map-icon-city {
+  color: #5b21b6;
+}
+
+.map-icon-stay {
+  color: #92400e;
+}
+
+.map-icon-water,
+.map-icon-ice {
+  color: #0f766e;
+}
 
 .map-tooltip {
   width: min(720px, calc(100vw - 40px));

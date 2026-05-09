@@ -936,15 +936,95 @@
   }
 
   function createMarkerIcon(stop, index, offset) {
+    function escapeAttribute(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function getMarkerVariant() {
+      const icon = stop && typeof stop.icon === "string" ? stop.icon : "";
+
+      switch (icon) {
+        case "✈":
+          return "airport";
+        case "🌉":
+          return "bridge";
+        case "🏨":
+        case "🏠":
+          return "stay";
+        case "🏙":
+          return "city";
+        case "⛰":
+          return "mountain";
+        case "♨":
+          return "hot-spring";
+        case "💧":
+          return "water";
+        case "🥾":
+          return "hike";
+        case "❄":
+          return "snow";
+        case "🧊":
+          return "ice";
+        default:
+          break;
+      }
+
+      switch (stop.kind) {
+        case "airport":
+          return "airport";
+        case "stay":
+          return "stay";
+        case "city":
+          return "city";
+        case "lagoon":
+          return "water";
+        default:
+          return "mountain";
+      }
+    }
+
+    function getMarkerSvg(variant) {
+      switch (variant) {
+        case "airport":
+          return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13.5 10.4 12 20 5.8l1.6 1.6-6.2 9.6-1.5 7-2.7-5-5-2.7Z"></path></svg>';
+        case "bridge":
+          return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16"></path><path d="M6 18v-4a6 6 0 0 1 12 0v4"></path><path d="M9 18v-3"></path><path d="M15 18v-3"></path></svg>';
+        case "stay":
+          return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20H4Z"></path><path d="M9 20v-5h6v5"></path></svg>';
+        case "city":
+          return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10l5-2v12"></path><path d="M10 20V5l10 3v12"></path><path d="M7 12h.01"></path><path d="M7 15h.01"></path><path d="M14 10h.01"></path><path d="M17 10h.01"></path><path d="M14 13h.01"></path><path d="M17 13h.01"></path></svg>';
+        case "hot-spring":
+          return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18c0-2.2 1.8-4 4-4h4c2.2 0 4 1.8 4 4"></path><path d="M7 20h10"></path><path d="M9 10c0-1.6 1.6-2.1 1.6-3.7"></path><path d="M12 9c0-1.6 1.6-2.1 1.6-3.7"></path><path d="M15 10c0-1.6 1.6-2.1 1.6-3.7"></path></svg>';
+        case "water":
+          return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4c2.8 4 5 6.7 5 9.4A5 5 0 0 1 7 13.4C7 10.7 9.2 8 12 4Z"></path></svg>';
+        case "hike":
+          return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5h3l1 2.5 2.5 1.5-1 2.5-2 .5-1.5 3.5H7.5l1.5-4L7 9l2-4Z"></path><path d="M14.5 14.5 17 20"></path></svg>';
+        case "snow":
+          return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"></path><path d="M4.2 7.5 19.8 16.5"></path><path d="M4.2 16.5 19.8 7.5"></path></svg>';
+        case "ice":
+          return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 19 8v8l-7 5-7-5V8Z"></path><path d="M12 3v18"></path><path d="M5 8h14"></path></svg>';
+        case "mountain":
+        default:
+          return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19 10.5 9 14 14l2.1-3 3.9 8Z"></path><path d="m9.7 10.3 1.1-1.5 1.1 1.7"></path></svg>';
+      }
+    }
+
+    const kindClass = stop.kind || "nature";
+    const variantClass = getMarkerVariant();
     const translateStyle = offset && (offset.x !== 0 || offset.y !== 0)
       ? ` style="transform: translate(${offset.x}px, ${offset.y}px);"`
       : "";
+    const markerTitle = escapeAttribute(stop.name);
 
     return L.divIcon({
       className: "",
       html: [
-        `<div class="map-icon map-icon-${stop.kind || "nature"}"${translateStyle} title="${stop.name}">`,
-        `<span>${stop.icon || "•"}</span>`,
+        `<div class="map-icon map-icon-${kindClass} map-icon-${variantClass}"${translateStyle} title="${markerTitle}" aria-label="${markerTitle}">`,
+        `<span class="map-icon-glyph">${getMarkerSvg(variantClass)}</span>`,
         `<span class="map-icon-number">${index + 1}</span>`,
         "</div>"
       ].join(""),
