@@ -67,6 +67,12 @@ body {
   line-height: 1.82;
 }
 
+.record-card-copy strong,
+.record-card-background strong {
+  color: var(--record-text);
+  font-weight: 800;
+}
+
 .record-days {
   display: grid;
   gap: 24px;
@@ -116,26 +122,33 @@ body {
 }
 
 .record-card-figure {
+  display: grid;
+  place-items: center;
   margin: 0;
   overflow: hidden;
+  aspect-ratio: 4 / 3;
   border-radius: 18px;
   background: #dfe8e5;
 }
 
 .record-card-figure-link {
-  display: block;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
 }
 
 .record-card-image {
   display: block;
   width: 100%;
-  height: auto;
-  max-height: 420px;
+  height: 100%;
   object-fit: contain;
+  object-position: center;
 }
 
 .record-card-meta {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 8px;
 }
@@ -144,6 +157,7 @@ body {
 .record-card-category {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 30px;
   padding: 0 10px;
   border-radius: 999px;
@@ -152,8 +166,10 @@ body {
 }
 
 .record-card-time {
+  min-width: 72px;
   color: var(--record-accent);
   background: var(--record-accent-soft);
+  font-variant-numeric: tabular-nums;
 }
 
 .record-card-category {
@@ -167,13 +183,11 @@ body {
   line-height: 1.45;
 }
 
-.record-card-filename,
 .record-day-count {
   margin: 0;
   color: var(--record-muted);
   font-size: 0.92rem;
   line-height: 1.6;
-  word-break: break-all;
 }
 
 .record-card-links {
@@ -234,6 +248,10 @@ body {
   .record-card {
     padding: 14px;
     border-radius: 18px;
+  }
+
+  .record-card-figure {
+    aspect-ratio: 5 / 4;
   }
 
   .record-entry-grid {

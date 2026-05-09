@@ -59,6 +59,38 @@
     return link;
   }
 
+  function appendInlineMarkdown(target, text) {
+    const source = String(text || "");
+    const parts = source.split(/(\*\*[^*]+\*\*)/g);
+
+    parts.forEach((part) => {
+      if (!part) {
+        return;
+      }
+
+      const strongMatch = part.match(/^\*\*([\s\S]+)\*\*$/);
+      if (strongMatch) {
+        const strong = document.createElement("strong");
+        strong.textContent = strongMatch[1];
+        target.append(strong);
+        return;
+      }
+
+      target.append(document.createTextNode(part));
+    });
+  }
+
+  function appendRichText(target, text) {
+    const lines = String(text || "").split(/\r?\n/);
+
+    lines.forEach((line, index) => {
+      appendInlineMarkdown(target, line);
+      if (index < lines.length - 1) {
+        target.append(document.createElement("br"));
+      }
+    });
+  }
+
   function parseVariant(filename) {
     const match = filename.match(/(?:\.(PANO|MP))?\.(jpg|jpeg|png|webp)$/i);
     const variant = match && match[1] ? match[1].toUpperCase() : "PHOTO";
@@ -114,15 +146,19 @@
 
     const title = createElement("h3", "record-card-title", entry.title || ui.navRecord);
     const body = createElement("div", "record-card-body");
-    body.append(createElement("p", "record-card-copy", entry.note || ui.noteFallback));
+    const note = createElement("p", "record-card-copy");
+    appendRichText(note, entry.note || ui.noteFallback);
+    body.append(note);
 
     if (entry.background) {
-      body.append(createElement("p", "record-card-background", `${ui.backgroundLabel}: ${entry.background}`));
+      const background = createElement("p", "record-card-background");
+      const label = createElement("strong", "record-card-background-label", `${ui.backgroundLabel}: `);
+      background.append(label);
+      appendRichText(background, entry.background);
+      body.append(background);
     }
 
-    const filename = createElement("p", "record-card-filename", entry.filename || "");
-
-    article.append(figure, meta, title, body, filename);
+    article.append(figure, meta, title, body);
     return article;
   }
 

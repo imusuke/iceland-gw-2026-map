@@ -303,6 +303,11 @@
   white-space: pre-wrap;
 }
 
+.journal-entry-comment strong {
+  color: var(--ink, #172a3a);
+  font-weight: 800;
+}
+
 .journal-entry-comment-empty {
   color: var(--ui-muted, #5b6b73);
 }

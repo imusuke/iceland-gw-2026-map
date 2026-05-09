@@ -31,6 +31,38 @@
     return label;
   }
 
+  function appendInlineMarkdown(target, text) {
+    const source = String(text || "");
+    const parts = source.split(/(\*\*[^*]+\*\*)/g);
+
+    parts.forEach((part) => {
+      if (!part) {
+        return;
+      }
+
+      const strongMatch = part.match(/^\*\*([\s\S]+)\*\*$/);
+      if (strongMatch) {
+        const strong = document.createElement("strong");
+        strong.textContent = strongMatch[1];
+        target.append(strong);
+        return;
+      }
+
+      target.append(document.createTextNode(part));
+    });
+  }
+
+  function appendRichText(target, text) {
+    const lines = String(text || "").split(/\r?\n/);
+
+    lines.forEach((line, index) => {
+      appendInlineMarkdown(target, line);
+      if (index < lines.length - 1) {
+        target.append(document.createElement("br"));
+      }
+    });
+  }
+
   function setJournalStatus(element, message, tone) {
     element.textContent = message;
     element.dataset.tone = tone;
@@ -605,9 +637,9 @@
 
     const comment = createElement(
       "p",
-      entry.comment ? "journal-entry-comment" : "journal-entry-comment journal-entry-comment-empty",
-      entry.comment || "コメントなし"
+      entry.comment ? "journal-entry-comment" : "journal-entry-comment journal-entry-comment-empty"
     );
+    appendRichText(comment, entry.comment || "コメントなし");
 
     body.append(meta, comment);
 
