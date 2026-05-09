@@ -5,6 +5,7 @@
   const MAX_UPLOAD_IMAGE_BYTES = 3 * 1024 * 1024;
   const JPEG_QUALITY = 0.82;
   const journalEntriesCache = new Map();
+  const seededJournalEntries = window.ICELAND_TRIP_JOURNAL_SEED || {};
   const fullDateTimeFormatter = new Intl.DateTimeFormat("ja-JP", {
     year: "numeric",
     month: "numeric",
@@ -109,6 +110,39 @@
       : [];
   }
 
+  function sortJournalEntries(entries) {
+    return cloneJournalEntries(entries).sort((left, right) => {
+      const rightValue = Date.parse(right.visitedAt || right.uploadedAt || "") || 0;
+      const leftValue = Date.parse(left.visitedAt || left.uploadedAt || "") || 0;
+      return rightValue - leftValue;
+    });
+  }
+
+  function readSeedJournalEntries(spotId) {
+    const entries = seededJournalEntries[spotId];
+    return sortJournalEntries(
+      Array.isArray(entries)
+        ? entries.map((entry) => ({
+            ...entry,
+            spotId,
+            readOnly: true,
+            sourceLabel: entry.sourceLabel || "旅行メモから登録済み"
+          }))
+        : []
+    );
+  }
+
+  function mergeJournalEntries(spotId, entries) {
+    const mergedMap = new Map();
+    [...cloneJournalEntries(entries), ...readSeedJournalEntries(spotId)].forEach((entry) => {
+      if (!entry || !entry.id) {
+        return;
+      }
+      mergedMap.set(entry.id, { ...entry });
+    });
+    return sortJournalEntries(Array.from(mergedMap.values()));
+  }
+
   function readCachedJournalEntries(spotId) {
     if (!journalEntriesCache.has(spotId)) {
       return null;
@@ -118,7 +152,7 @@
   }
 
   function writeCachedJournalEntries(spotId, entries) {
-    journalEntriesCache.set(spotId, cloneJournalEntries(entries));
+    journalEntriesCache.set(spotId, sortJournalEntries(entries));
   }
 
   function upsertCachedJournalEntry(spotId, entry) {
@@ -535,6 +569,9 @@
   function createJournalEntryCard(entry, context) {
     const article = createElement("article", "journal-entry");
     article.dataset.entryId = entry.id;
+    if (entry.readOnly) {
+      article.classList.add("journal-entry-readonly");
+    }
     const image = createElement("img", "journal-entry-photo");
     image.alt = "旅の記録写真";
     image.loading = "lazy";
@@ -550,12 +587,14 @@
     );
     const saved = createElement(
       "p",
-      "journal-entry-saved",
-      `保存: ${formatJournalDateTime(entry.uploadedAt, "保存日時不明")}`
+      entry.readOnly ? "journal-entry-saved journal-entry-seeded" : "journal-entry-saved",
+      entry.readOnly
+        ? entry.sourceLabel || "旅行メモから登録済み"
+        : `保存: ${formatJournalDateTime(entry.uploadedAt, "保存日時不明")}`
     );
     meta.append(visited, saved);
 
-    if (entry.updatedAt && entry.updatedAt !== entry.uploadedAt) {
+    if (!entry.readOnly && entry.updatedAt && entry.updatedAt !== entry.uploadedAt) {
       const updated = createElement(
         "p",
         "journal-entry-updated",
@@ -569,6 +608,19 @@
       entry.comment ? "journal-entry-comment" : "journal-entry-comment journal-entry-comment-empty",
       entry.comment || "コメントなし"
     );
+
+    body.append(meta, comment);
+
+    if (entry.readOnly) {
+      const source = createElement(
+        "p",
+        "journal-entry-source",
+        "この記録は旅の実記録ページのメモから反映しています。"
+      );
+      body.append(source);
+      article.append(image, body);
+      return article;
+    }
 
     const actions = createElement("div", "journal-entry-actions");
     const editButton = createElement("button", "journal-entry-button", "編集");
@@ -622,7 +674,7 @@
       });
     });
 
-    body.append(meta, comment, actions, editForm.panel);
+    body.append(actions, editForm.panel);
     article.append(image, body);
 
     return article;
@@ -660,19 +712,37 @@
 
       setJournalFormEnabled(form, true);
 
-      if (!Array.isArray(payload.entries) || payload.entries.length === 0) {
+      const mergedEntries = mergeJournalEntries(spotId, Array.isArray(payload.entries) ? payload.entries : []);
+
+      if (mergedEntries.length === 0) {
         writeCachedJournalEntries(spotId, []);
         renderJournalEmptyState(entryList, "まだ記録はありません。最初の1枚を残せます。");
         setJournalStatus(status, "まだ記録はありません。", "idle");
         return;
       }
 
-      writeCachedJournalEntries(spotId, payload.entries);
-      renderJournalEntries(entryList, payload.entries, spotId, status);
-      setJournalStatus(status, `${payload.entries.length}件の記録があります。`, "success");
+      writeCachedJournalEntries(spotId, mergedEntries);
+      renderJournalEntries(entryList, mergedEntries, spotId, status);
+      setJournalStatus(status, `${mergedEntries.length}件の記録があります。`, "success");
     } catch (error) {
       const code = error instanceof Error ? error.code || error.message : "";
       const isStorageNotReady = code === "storage_not_configured";
+      const seededEntries = readSeedJournalEntries(spotId);
+
+      if (seededEntries.length > 0) {
+        writeCachedJournalEntries(spotId, seededEntries);
+        renderJournalEntries(entryList, seededEntries, spotId, status);
+        setJournalFormEnabled(form, !isStorageNotReady);
+        setJournalStatus(
+          status,
+          isStorageNotReady
+            ? `${seededEntries.length}件の旅メモを表示しています。新規保存はまだ使えません。`
+            : `${seededEntries.length}件の旅メモを表示しています。`,
+          "success"
+        );
+        return;
+      }
+
       renderJournalEmptyState(
         entryList,
         isStorageNotReady

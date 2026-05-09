@@ -256,6 +256,11 @@
   padding: 14px;
 }
 
+.journal-entry-readonly {
+  border-color: rgba(15, 95, 85, 0.14);
+  background: rgba(248, 252, 250, 0.88);
+}
+
 .spot-journal-compact .journal-entry {
   grid-template-columns: 1fr;
   gap: 12px;
