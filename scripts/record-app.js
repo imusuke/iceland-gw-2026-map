@@ -1,7 +1,7 @@
 (function () {
   const recordData = window.ICELAND_TRAVEL_RECORD;
   if (!recordData || !Array.isArray(recordData.days)) {
-    throw new Error("Travel record data is missing.");
+    throw new Error("旅の実記録データが見つかりません。");
   }
 
   const ui = {
