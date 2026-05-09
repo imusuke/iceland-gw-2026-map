@@ -98,10 +98,24 @@
   function parseRequestedSpotIndex() {
     const currentUrl = new URL(window.location.href);
     const spotParam = currentUrl.searchParams.get("spot");
-    const hashMatch = currentUrl.hash.match(/^#spot-(\d+)$/);
-    const rawIndex = spotParam || (hashMatch ? hashMatch[1] : "");
-    const parsedIndex = Number(rawIndex);
+    const spotIdParam = currentUrl.searchParams.get("spotId");
+    const hashMatch = currentUrl.hash.match(/^#(spot-\d+)$/);
+    const rawSpot = spotIdParam || spotParam || (hashMatch ? hashMatch[1] : "");
 
+    if (!rawSpot) {
+      return null;
+    }
+
+    if (/^spot-\d+$/i.test(rawSpot)) {
+      const requestedSpotId = rawSpot.toLowerCase();
+      const matchedIndex = routeStops.findIndex((stop, index) => {
+        return buildSpotId(index, stop).toLowerCase() === requestedSpotId;
+      });
+
+      return matchedIndex >= 0 ? matchedIndex : null;
+    }
+
+    const parsedIndex = Number(rawSpot);
     if (!Number.isInteger(parsedIndex) || parsedIndex < 1 || parsedIndex > routeStops.length) {
       return null;
     }
@@ -636,7 +650,7 @@
     `;
 
     const links = [];
-    links.push(`<a class="map-tooltip-link map-tooltip-link-strong" href="${buildSpotDetailsPath(index)}">${uiLabels.readOnDetailsPage}</a>`);
+    links.push(`<a class="map-tooltip-link map-tooltip-link-strong" href="${buildSpotDetailsPath(index, stop)}">${uiLabels.readOnDetailsPage}</a>`);
     if (stop.officialUrl) {
       links.push(`<a class="map-tooltip-link" href="${stop.officialUrl}" target="_blank" rel="noreferrer">${stop.officialLabel || "公式情報"}</a>`);
     }

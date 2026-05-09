@@ -241,7 +241,7 @@
 
   function createSpotCard(stop, index) {
     const article = createElement("article", "spot-card");
-    article.id = buildSpotId(index);
+    article.id = buildSpotId(index, stop);
 
     const header = createElement("header", "spot-card-header");
     const headerCopy = createElement("div", "spot-card-copy");
@@ -252,7 +252,7 @@
 
     const actions = createElement("div", "spot-actions");
     actions.append(
-      createLink("action-button primary", buildSpotMapPath(index), uiLabels.openSpotOnMap),
+      createLink("action-button primary", buildSpotMapPath(index, stop), uiLabels.openSpotOnMap),
       createLink("action-button secondary", "/map", uiLabels.overviewMap)
     );
 
@@ -347,7 +347,7 @@
     const fragment = document.createDocumentFragment();
 
     stops.forEach((stop, index) => {
-      const link = createLink("spot-index-link", `#${buildSpotId(index)}`, stop.name);
+      const link = createLink("spot-index-link", `#${buildSpotId(index, stop)}`, stop.name);
       const badge = createElement("span", "spot-index-number", String(index + 1));
       const copy = createElement("span", "spot-index-copy");
       const day = createElement("span", "spot-index-day", stop.day);

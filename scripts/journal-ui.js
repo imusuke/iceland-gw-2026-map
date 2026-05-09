@@ -854,8 +854,12 @@
 
     const safeBuildSpotId = typeof buildSpotId === "function"
       ? buildSpotId
-      : (spotIndex) => `spot-${spotIndex + 1}`;
-    const spotId = safeBuildSpotId(index);
+      : (spotIndex, currentStop) => (
+        currentStop && typeof currentStop.id === "string"
+          ? currentStop.id
+          : `spot-${spotIndex + 1}`
+      );
+    const spotId = safeBuildSpotId(index, stop);
     const section = createElement("section", "spot-journal");
     if (variant === "compact") {
       section.classList.add("spot-journal-compact");

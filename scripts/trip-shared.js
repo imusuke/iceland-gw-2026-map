@@ -10,16 +10,24 @@
     spotBadge: (index) => `スポット ${index}`
   };
 
-  function buildSpotId(index) {
+  function buildSpotId(index, stop) {
+    if (stop && typeof stop.id === "string" && /^spot-\d+$/.test(stop.id)) {
+      return stop.id;
+    }
+
+    if (typeof index === "string" && /^spot-\d+$/.test(index)) {
+      return index;
+    }
+
     return `spot-${index + 1}`;
   }
 
-  function buildSpotDetailsPath(index) {
-    return `/spots#${buildSpotId(index)}`;
+  function buildSpotDetailsPath(index, stop) {
+    return `/spots#${buildSpotId(index, stop)}`;
   }
 
-  function buildSpotMapPath(index) {
-    return `/map?spot=${index + 1}`;
+  function buildSpotMapPath(index, stop) {
+    return `/map?spot=${encodeURIComponent(buildSpotId(index, stop))}`;
   }
 
   async function fetchWikiSummary(wikiTitle) {
