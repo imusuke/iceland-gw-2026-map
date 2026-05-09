@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f5f55" />
+  <title>アイスランド GW 2026 旅の実記録</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+  <link rel="stylesheet" href="/styles/site.css" />
+  <link rel="stylesheet" href="/styles/record.css" />
+</head>
+<body>
+  <main class="record-shell">
+    <header class="record-hero">
+      <div class="hero-copy">
+        <p class="hero-eyebrow">旅の実記録</p>
+        <h1>アイスランド旅行のハイライト</h1>
+        <p class="hero-lead" id="record-lead">
+          実際の旅のメモと写真をもとに、景色・地形・食の印象を読み返せるページです。
+        </p>
+      </div>
+
+      <div class="hero-meta">
+        <p class="hero-meta-item" id="record-period"></p>
+        <p class="hero-meta-item" id="record-day-count"></p>
+        <p class="hero-meta-item" id="record-highlight-count"></p>
+      </div>
+
+      <nav class="page-nav" aria-label="主要ページ">
+        <a class="action-button secondary" href="/map">ルートマップ</a>
+        <a class="action-button secondary" href="/spots">スポット詳細</a>
+        <a class="action-button secondary" href="/history">アイスランド史</a>
+        <a class="action-button current" href="/record" aria-current="page">旅の実記録</a>
+      </nav>
+
+      <nav class="hero-jumps record-day-jumps" id="record-day-jumps" aria-label="日別の移動"></nav>
+    </header>
+
+    <section class="record-note-panel" aria-labelledby="record-note-title">
+      <div class="section-heading">
+        <p class="section-eyebrow">このページについて</p>
+        <h2 id="record-note-title">写真とメモのスクラップブックを再編集</h2>
+      </div>
+      <p class="record-note-copy" id="record-note"></p>
+    </section>
+
+    <section class="record-days" id="record-days" aria-label="旅の実記録一覧"></section>
+  </main>
+
+  <script src="/data/travel-record.js"></script>
+  <script src="/scripts/record-app.js"></script>
+</body>
+</html>

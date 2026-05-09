@@ -1,0 +1,242 @@
+:root {
+  --record-bg: #f7f8f4;
+  --record-panel: rgba(255, 255, 255, 0.92);
+  --record-line: rgba(19, 54, 49, 0.12);
+  --record-shadow: 0 18px 36px rgba(18, 53, 48, 0.08);
+  --record-accent: #0f5f55;
+  --record-accent-soft: rgba(15, 95, 85, 0.12);
+  --record-text: #19312f;
+  --record-muted: #5e6d69;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--record-text);
+  background:
+    radial-gradient(circle at top left, rgba(150, 208, 194, 0.3), transparent 34%),
+    radial-gradient(circle at top right, rgba(255, 208, 155, 0.26), transparent 32%),
+    linear-gradient(180deg, #fcfdfa 0%, var(--record-bg) 100%);
+  font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+}
+
+.record-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 28px 0 64px;
+  display: grid;
+  gap: 24px;
+}
+
+.record-hero,
+.record-note-panel,
+.record-day-section {
+  padding: 28px;
+  border: 1px solid var(--record-line);
+  border-radius: 28px;
+  background: var(--record-panel);
+  box-shadow: var(--record-shadow);
+}
+
+.record-hero {
+  display: grid;
+  gap: 20px;
+}
+
+.record-day-jumps {
+  gap: 10px;
+}
+
+.record-day-jumps .action-button {
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 0.94rem;
+}
+
+.record-note-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.record-note-copy,
+.record-day-summary,
+.record-card-copy,
+.record-card-background {
+  margin: 0;
+  color: var(--record-muted);
+  line-height: 1.82;
+}
+
+.record-days {
+  display: grid;
+  gap: 24px;
+}
+
+.record-day-section {
+  display: grid;
+  gap: 18px;
+  content-visibility: auto;
+  contain-intrinsic-size: 1200px;
+}
+
+.record-day-header {
+  display: grid;
+  gap: 8px;
+}
+
+.record-day-kicker {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--record-accent);
+}
+
+.record-day-title {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.8vw, 2rem);
+  line-height: 1.2;
+}
+
+.record-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.record-card {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(19, 54, 49, 0.08);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.record-card-figure {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #dfe8e5;
+}
+
+.record-card-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.record-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.record-card-time,
+.record-card-category {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.record-card-time {
+  color: var(--record-accent);
+  background: var(--record-accent-soft);
+}
+
+.record-card-category {
+  color: #ffffff;
+  background: linear-gradient(135deg, #0f5f55, #257a6e);
+}
+
+.record-card-title {
+  margin: 0;
+  font-size: 1.12rem;
+  line-height: 1.45;
+}
+
+.record-card-body {
+  display: grid;
+  gap: 10px;
+}
+
+.record-card-background {
+  padding-top: 10px;
+  border-top: 1px dashed rgba(19, 54, 49, 0.14);
+}
+
+.record-card-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.record-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(19, 54, 49, 0.12);
+  background: rgba(15, 95, 85, 0.06);
+  color: var(--record-accent);
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.record-link:hover {
+  background: rgba(15, 95, 85, 0.12);
+}
+
+@media (max-width: 920px) {
+  .record-shell {
+    width: min(100% - 24px, 920px);
+    padding-top: 18px;
+  }
+
+  .record-hero,
+  .record-note-panel,
+  .record-day-section {
+    padding: 22px;
+    border-radius: 24px;
+  }
+
+  .record-entry-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .record-shell {
+    width: calc(100% - 16px);
+    padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .record-hero,
+  .record-note-panel,
+  .record-day-section {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .record-card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .record-card-links {
+    flex-direction: column;
+  }
+
+  .record-link {
+    width: 100%;
+  }
+}

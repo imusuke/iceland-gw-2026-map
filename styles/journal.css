@@ -302,6 +302,18 @@
   color: var(--ui-muted, #5b6b73);
 }
 
+.journal-entry-seeded {
+  background: rgba(15, 95, 85, 0.1);
+  color: #0f5f55;
+}
+
+.journal-entry-source {
+  margin: 0;
+  color: var(--ui-muted, #5b6b73);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
 .journal-entry-actions {
   display: flex;
   flex-wrap: wrap;
