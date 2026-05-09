@@ -26,6 +26,7 @@ body {
   padding: 28px 0 64px;
   display: grid;
   gap: 24px;
+  min-width: 0;
 }
 
 .record-hero,
@@ -36,6 +37,7 @@ body {
   border-radius: 28px;
   background: var(--record-panel);
   box-shadow: var(--record-shadow);
+  min-width: 0;
 }
 
 .record-hero {
@@ -76,6 +78,7 @@ body {
 .record-days {
   display: grid;
   gap: 24px;
+  min-width: 0;
 }
 
 .record-day-section {
@@ -88,6 +91,7 @@ body {
 .record-day-header {
   display: grid;
   gap: 8px;
+  min-width: 0;
 }
 
 .record-day-kicker {
@@ -240,6 +244,78 @@ body {
   }
 }
 
+@media (max-width: 760px) {
+  .record-shell {
+    width: calc(100% - 18px);
+    gap: 18px;
+    padding-top: 14px;
+  }
+
+  .record-hero,
+  .record-note-panel,
+  .record-day-section {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .page-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .page-nav .action-button {
+    width: 100%;
+    min-width: 0;
+    padding: 0 12px;
+    font-size: 0.94rem;
+  }
+
+  .hero-meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .hero-meta-item {
+    width: auto;
+    min-width: 0;
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .record-day-jumps {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .record-day-jumps::-webkit-scrollbar {
+    display: none;
+  }
+
+  .record-day-jumps .action-button {
+    flex: 0 0 auto;
+    width: auto;
+    min-height: 38px;
+    min-width: 0;
+    padding: 0 12px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .record-day-summary,
+  .record-card-copy,
+  .record-card-background {
+    font-size: 0.96rem;
+    line-height: 1.74;
+  }
+}
+
 @media (max-width: 640px) {
   .record-shell {
     width: calc(100% - 16px);
@@ -254,20 +330,24 @@ body {
   }
 
   .record-card {
-    padding: 14px;
+    gap: 10px;
+    padding: 12px;
     border-radius: 18px;
   }
 
   .record-card-figure {
-    height: 240px;
+    height: auto;
+    aspect-ratio: 4 / 3;
   }
 
   .record-card-title {
     min-height: 0;
+    font-size: 1.04rem;
   }
 
   .record-entry-grid {
     grid-template-columns: 1fr;
+    gap: 14px;
   }
 
   .record-card-links {
@@ -276,5 +356,32 @@ body {
 
   .record-link {
     width: 100%;
+  }
+
+  .hero-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .page-nav {
+    gap: 8px;
+  }
+
+  .record-day-title {
+    font-size: clamp(1.3rem, 7vw, 1.72rem);
+  }
+
+  .record-card-meta {
+    gap: 6px;
+    min-height: 28px;
+  }
+
+  .record-card-time,
+  .record-card-category {
+    min-height: 28px;
+    font-size: 0.78rem;
+  }
+
+  .record-card-time {
+    min-width: 64px;
   }
 }
