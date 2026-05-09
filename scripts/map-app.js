@@ -29,10 +29,10 @@
   };
   const buildSpotDetailsPath = typeof shared.buildSpotDetailsPath === "function"
     ? shared.buildSpotDetailsPath
-    : (stop, index) => `/spots#${stop && stop.id ? stop.id : `spot-${index + 1}`}`;
+    : (index) => `/spots#spot-${index + 1}`;
   const buildSpotId = typeof shared.buildSpotId === "function"
     ? shared.buildSpotId
-    : (stop, index) => stop && stop.id ? stop.id : `spot-${index + 1}`;
+    : (index) => `spot-${index + 1}`;
   const loadReferencePhoto = typeof shared.loadReferencePhoto === "function"
     ? shared.loadReferencePhoto
     : async (stop) => stop.photoUrl || "";
@@ -98,26 +98,15 @@
   function parseRequestedSpotIndex() {
     const currentUrl = new URL(window.location.href);
     const spotParam = currentUrl.searchParams.get("spot");
-    const hashSpotId = currentUrl.hash.startsWith("#")
-      ? decodeURIComponent(currentUrl.hash.slice(1))
-      : "";
-    const rawSpot = spotParam || hashSpotId;
+    const hashMatch = currentUrl.hash.match(/^#spot-(\d+)$/);
+    const rawIndex = spotParam || (hashMatch ? hashMatch[1] : "");
+    const parsedIndex = Number(rawIndex);
 
-    if (!rawSpot) {
+    if (!Number.isInteger(parsedIndex) || parsedIndex < 1 || parsedIndex > routeStops.length) {
       return null;
     }
 
-    const matchedById = routeStops.findIndex((stop) => stop.id === rawSpot || stop.id === `spot-${rawSpot}`);
-    if (matchedById >= 0) {
-      return matchedById;
-    }
-
-    const parsedIndex = Number(rawSpot);
-    if (Number.isInteger(parsedIndex) && parsedIndex >= 1 && parsedIndex <= routeStops.length) {
-      return parsedIndex - 1;
-    }
-
-    return null;
+    return parsedIndex - 1;
   }
 
   function getRouteCacheKey(fromStop, toStop) {
@@ -647,7 +636,7 @@
     `;
 
     const links = [];
-    links.push(`<a class="map-tooltip-link map-tooltip-link-strong" href="${buildSpotDetailsPath(stop, index)}">${uiLabels.readOnDetailsPage}</a>`);
+    links.push(`<a class="map-tooltip-link map-tooltip-link-strong" href="${buildSpotDetailsPath(index)}">${uiLabels.readOnDetailsPage}</a>`);
     if (stop.officialUrl) {
       links.push(`<a class="map-tooltip-link" href="${stop.officialUrl}" target="_blank" rel="noreferrer">${stop.officialLabel || "公式情報"}</a>`);
     }
