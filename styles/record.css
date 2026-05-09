@@ -67,6 +67,7 @@ body {
   margin: 0;
   color: var(--record-muted);
   line-height: 1.82;
+  overflow-wrap: anywhere;
 }
 
 .record-card-copy strong,
@@ -107,6 +108,7 @@ body {
   margin: 0;
   font-size: clamp(1.5rem, 2.8vw, 2rem);
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .record-entry-grid {
@@ -189,6 +191,7 @@ body {
   min-height: calc(1.45em * 2);
   font-size: 1.12rem;
   line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .record-day-count {
@@ -246,16 +249,18 @@ body {
 
 @media (max-width: 760px) {
   .record-shell {
-    width: calc(100% - 18px);
+    width: calc(100% - 14px);
     gap: 18px;
-    padding-top: 14px;
+    padding-top: 12px;
+    padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
   }
 
   .record-hero,
   .record-note-panel,
   .record-day-section {
-    padding: 18px;
-    border-radius: 22px;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 18px;
   }
 
   .page-nav {
@@ -271,34 +276,31 @@ body {
     font-size: 0.94rem;
   }
 
-  .hero-meta {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-
   .hero-meta-item {
-    width: auto;
+    width: 100%;
     min-width: 0;
     padding: 10px 12px;
     text-align: center;
   }
 
-  .record-day-jumps {
-    display: flex;
-    flex-wrap: nowrap;
+  .hero-jumps.record-day-jumps {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    justify-content: start;
     gap: 10px;
     overflow-x: auto;
+    overflow-y: hidden;
     padding-bottom: 4px;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }
 
-  .record-day-jumps::-webkit-scrollbar {
+  .hero-jumps.record-day-jumps::-webkit-scrollbar {
     display: none;
   }
 
-  .record-day-jumps .action-button {
+  .hero-jumps.record-day-jumps .action-button {
     flex: 0 0 auto;
     width: auto;
     min-height: 38px;
@@ -308,25 +310,9 @@ body {
     white-space: nowrap;
   }
 
-  .record-day-summary,
-  .record-card-copy,
-  .record-card-background {
-    font-size: 0.96rem;
-    line-height: 1.74;
-  }
-}
-
-@media (max-width: 640px) {
-  .record-shell {
-    width: calc(100% - 16px);
-    padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
-  }
-
-  .record-hero,
-  .record-note-panel,
-  .record-day-section {
-    padding: 18px;
-    border-radius: 20px;
+  .record-entry-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
 
   .record-card {
@@ -340,14 +326,38 @@ body {
     aspect-ratio: 4 / 3;
   }
 
+  .record-day-summary,
+  .record-card-copy,
+  .record-card-background {
+    font-size: 0.96rem;
+    line-height: 1.74;
+  }
+}
+
+@media (max-width: 640px) {
+  .record-shell {
+    width: calc(100% - 12px);
+  }
+
+  .record-hero,
+  .record-note-panel,
+  .record-day-section {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .page-nav {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .hero-meta {
+    gap: 8px;
+  }
+
   .record-card-title {
     min-height: 0;
     font-size: 1.04rem;
-  }
-
-  .record-entry-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
   }
 
   .record-card-links {
@@ -359,11 +369,8 @@ body {
   }
 
   .hero-meta {
+    display: grid;
     grid-template-columns: 1fr;
-  }
-
-  .page-nav {
-    gap: 8px;
   }
 
   .record-day-title {

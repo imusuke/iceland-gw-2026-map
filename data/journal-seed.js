@@ -72,10 +72,17 @@
     return `${tripYear}-${month}-${day}T${hours}:${minutes}:00+09:00`;
   }
 
+  function extractComment(entry) {
+    const background = String(entry && entry.background ? entry.background : "").trim();
+    const match = background.match(/\*\*コメント\*\*:\s*([\s\S]+)$/);
+    return match ? match[1].trim() : "";
+  }
+
   function buildComment(entry) {
     const parts = [];
     const title = String(entry && entry.title ? entry.title : "").trim();
     const note = String(entry && entry.note ? entry.note : "").trim();
+    const comment = extractComment(entry);
 
     if (title && title !== "追加写真") {
       parts.push(title);
@@ -83,6 +90,10 @@
 
     if (note) {
       parts.push(note);
+    }
+
+    if (comment) {
+      parts.push(`**コメント**: ${comment}`);
     }
 
     return parts.join("\n").trim();
