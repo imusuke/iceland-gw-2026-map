@@ -85,7 +85,7 @@
       parts.push(note);
     }
 
-    return parts.join("\n").trim() || "旅メモに個別コメントが残っていない写真です。";
+    return parts.join("\n").trim();
   }
 
   function buildPhotoName(entry, dayId, entryIndex) {

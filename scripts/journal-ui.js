@@ -6,6 +6,14 @@
   const JPEG_QUALITY = 0.82;
   const journalEntriesCache = new Map();
   const seededJournalEntries = window.ICELAND_TRIP_JOURNAL_SEED || {};
+  const travelRecord = window.ICELAND_TRAVEL_RECORD || {};
+  const genericJournalComments = new Set([
+    "",
+    "コメントなし",
+    "追加写真",
+    "旅メモに個別コメントが残っていない写真です。"
+  ]);
+  const travelRecordEntryLookup = buildTravelRecordEntryLookup(travelRecord);
   const fullDateTimeFormatter = new Intl.DateTimeFormat("ja-JP", {
     year: "numeric",
     month: "numeric",
@@ -142,6 +150,142 @@
       : [];
   }
 
+  function getPhotoFileName(value) {
+    if (!value) {
+      return "";
+    }
+
+    const normalizedValue = String(value).split("#")[0].split("?")[0];
+    const pathParts = normalizedValue.split("/");
+    return String(pathParts[pathParts.length - 1] || "").trim().toLowerCase();
+  }
+
+  function buildTravelRecordComment(entry) {
+    const parts = [];
+    const title = String(entry && entry.title ? entry.title : "").trim();
+    const note = String(entry && entry.note ? entry.note : "").trim();
+
+    if (title && title !== "追加写真") {
+      parts.push(title);
+    }
+
+    if (note) {
+      parts.push(note);
+    }
+
+    return parts.join("\n").trim();
+  }
+
+  function buildTravelRecordEntryLookup(record) {
+    const lookup = new Map();
+    const days = Array.isArray(record && record.days) ? record.days : [];
+
+    days.forEach((day) => {
+      const entries = Array.isArray(day && day.entries) ? day.entries : [];
+      entries.forEach((entry) => {
+        const fileNameKey = getPhotoFileName(entry && entry.filename);
+        const imageKey = getPhotoFileName(entry && entry.image);
+        if (fileNameKey) {
+          lookup.set(fileNameKey, entry);
+        }
+        if (imageKey) {
+          lookup.set(imageKey, entry);
+        }
+      });
+    });
+
+    return lookup;
+  }
+
+  function findTravelRecordEntry(entry) {
+    if (!entry) {
+      return null;
+    }
+
+    const keys = [getPhotoFileName(entry.photoName), getPhotoFileName(entry.photoUrl)].filter(Boolean);
+    for (const key of keys) {
+      if (travelRecordEntryLookup.has(key)) {
+        return travelRecordEntryLookup.get(key);
+      }
+    }
+
+    return null;
+  }
+
+  function isGenericJournalComment(value) {
+    const normalizedValue = String(value || "").trim();
+    return genericJournalComments.has(normalizedValue);
+  }
+
+  function scoreJournalComment(value) {
+    const normalizedValue = String(value || "").trim();
+    if (!normalizedValue) {
+      return 0;
+    }
+    if (isGenericJournalComment(normalizedValue)) {
+      return 1;
+    }
+    return 100 + normalizedValue.length;
+  }
+
+  function normalizeJournalEntry(entry) {
+    if (!entry) {
+      return entry;
+    }
+
+    const normalizedEntry = { ...entry };
+    const recordEntry = findTravelRecordEntry(normalizedEntry);
+
+    if (recordEntry) {
+      const enrichedComment = buildTravelRecordComment(recordEntry);
+      if (enrichedComment && isGenericJournalComment(normalizedEntry.comment)) {
+        normalizedEntry.comment = enrichedComment;
+      }
+
+      if (!normalizedEntry.photoName && recordEntry.filename) {
+        normalizedEntry.photoName = recordEntry.filename;
+      }
+
+      if (!normalizedEntry.photoUrl && recordEntry.image) {
+        normalizedEntry.photoUrl = recordEntry.image;
+      }
+    }
+
+    return normalizedEntry;
+  }
+
+  function buildJournalEntryIdentity(entry) {
+    const fileName = getPhotoFileName(entry && (entry.photoName || entry.photoUrl));
+    if (fileName) {
+      return `${entry.spotId || ""}:${fileName}`;
+    }
+
+    return `id:${entry && entry.id ? entry.id : Math.random()}`;
+  }
+
+  function mergeJournalEntryPair(existingEntry, incomingEntry) {
+    const shouldPreferIncoming =
+      existingEntry.readOnly && !incomingEntry.readOnly;
+    const baseEntry = shouldPreferIncoming ? incomingEntry : existingEntry;
+    const secondaryEntry = shouldPreferIncoming ? existingEntry : incomingEntry;
+    const mergedEntry = {
+      ...secondaryEntry,
+      ...baseEntry
+    };
+
+    if (scoreJournalComment(secondaryEntry.comment) > scoreJournalComment(baseEntry.comment)) {
+      mergedEntry.comment = secondaryEntry.comment;
+    } else {
+      mergedEntry.comment = baseEntry.comment;
+    }
+
+    mergedEntry.photoUrl = baseEntry.photoUrl || secondaryEntry.photoUrl;
+    mergedEntry.photoName = baseEntry.photoName || secondaryEntry.photoName;
+    mergedEntry.sourceLabel = baseEntry.sourceLabel || secondaryEntry.sourceLabel;
+
+    return normalizeJournalEntry(mergedEntry);
+  }
+
   function sortJournalEntries(entries) {
     return cloneJournalEntries(entries).sort((left, right) => {
       const rightValue = Date.parse(right.visitedAt || right.uploadedAt || "") || 0;
@@ -159,18 +303,24 @@
             spotId,
             readOnly: true,
             sourceLabel: entry.sourceLabel || "旅行メモから登録済み"
-          }))
+          })).map(normalizeJournalEntry)
         : []
     );
   }
 
   function mergeJournalEntries(spotId, entries) {
     const mergedMap = new Map();
-    [...cloneJournalEntries(entries), ...readSeedJournalEntries(spotId)].forEach((entry) => {
-      if (!entry || !entry.id) {
+    [...readSeedJournalEntries(spotId), ...cloneJournalEntries(entries).map(normalizeJournalEntry)].forEach((entry) => {
+      if (!entry) {
         return;
       }
-      mergedMap.set(entry.id, { ...entry });
+      const identity = buildJournalEntryIdentity(entry);
+      const existingEntry = mergedMap.get(identity);
+      if (!existingEntry) {
+        mergedMap.set(identity, normalizeJournalEntry({ ...entry }));
+        return;
+      }
+      mergedMap.set(identity, mergeJournalEntryPair(existingEntry, entry));
     });
     return sortJournalEntries(Array.from(mergedMap.values()));
   }
