@@ -1271,8 +1271,7 @@
     routeSegments.forEach(({ line, index, isResolved }) => {
       const visibleByStep =
         !state.stepModeEnabled ||
-        index === state.currentStepIndex ||
-        index === state.currentStepIndex + 1;
+        index === state.currentStepIndex;
       if (isResolved && visibleByStep) {
         line.addTo(map);
       } else {
@@ -1283,8 +1282,7 @@
     segmentArrows.forEach(({ marker, index }) => {
       const visibleByStep =
         !state.stepModeEnabled ||
-        index === state.currentStepIndex ||
-        index === state.currentStepIndex + 1;
+        index === state.currentStepIndex;
       if (visibleByStep) {
         marker.addTo(map);
       } else {
