@@ -1260,7 +1260,10 @@
 
   function applyVisibility() {
     markers.forEach(({ marker, index }) => {
-      const visibleByStep = !state.stepModeEnabled || Math.abs(index - state.currentStepIndex) <= 1;
+      const visibleByStep =
+        !state.stepModeEnabled ||
+        index === state.currentStepIndex ||
+        index === state.currentStepIndex - 1;
       if (visibleByStep) {
         marker.addTo(map);
       } else {
