@@ -272,6 +272,11 @@ body.record-slideshow-open {
   padding: 18px;
 }
 
+.record-slideshow[hidden],
+.record-slideshow[aria-hidden="true"] {
+  display: none !important;
+}
+
 .record-slideshow-backdrop {
   position: absolute;
   inset: 0;

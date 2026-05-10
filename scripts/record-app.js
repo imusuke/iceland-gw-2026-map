@@ -178,6 +178,7 @@
     renderSlideshow(index);
     elements.slideshow.hidden = false;
     elements.slideshow.setAttribute("aria-hidden", "false");
+    elements.slideshow.style.display = "grid";
     document.body.classList.add("record-slideshow-open");
     elements.slideshowClose.focus();
   }
@@ -185,6 +186,7 @@
   function closeSlideshow() {
     elements.slideshow.hidden = true;
     elements.slideshow.setAttribute("aria-hidden", "true");
+    elements.slideshow.style.display = "none";
     document.body.classList.remove("record-slideshow-open");
   }
 
@@ -364,6 +366,7 @@
     });
 
     elements.openSlideshow.disabled = state.entries.length === 0;
+    elements.slideshow.style.display = "none";
     bindSlideshowEvents();
   }
 
