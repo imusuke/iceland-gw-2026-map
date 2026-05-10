@@ -7,8 +7,8 @@
   <title>アイスランド GW 2026 旅の実記録</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
   <link rel="apple-touch-icon" href="/favicon.svg" />
-  <link rel="stylesheet" href="/styles/site.css?v=20260510d" />
-  <link rel="stylesheet" href="/styles/record.css?v=20260510d" />
+  <link rel="stylesheet" href="/styles/site.css?v=20260510e" />
+  <link rel="stylesheet" href="/styles/record.css?v=20260510e" />
 </head>
 <body>
   <main class="record-shell">
@@ -23,6 +23,10 @@
         <p class="hero-meta-item" id="record-period"></p>
         <p class="hero-meta-item" id="record-day-count"></p>
         <p class="hero-meta-item" id="record-highlight-count"></p>
+      </div>
+
+      <div class="record-hero-actions">
+        <button class="action-button" type="button" id="record-open-slideshow"></button>
       </div>
 
       <nav class="page-nav" aria-label="主なページ">
@@ -46,7 +50,40 @@
     <section class="record-days" id="record-days" aria-label="日別ギャラリー"></section>
   </main>
 
-  <script src="/data/travel-record.js?v=20260510d"></script>
-  <script src="/scripts/record-app.js?v=20260510d"></script>
+  <div class="record-slideshow" id="record-slideshow" hidden aria-hidden="true">
+    <div class="record-slideshow-backdrop" data-record-close="true"></div>
+    <section class="record-slideshow-dialog" role="dialog" aria-modal="true" aria-labelledby="record-slideshow-title">
+      <div class="record-slideshow-toolbar">
+        <div class="record-slideshow-toolbar-copy">
+          <p class="record-slideshow-kicker" id="record-slideshow-kicker"></p>
+          <p class="record-slideshow-counter" id="record-slideshow-counter"></p>
+        </div>
+        <div class="record-slideshow-toolbar-actions">
+          <button class="action-button secondary" type="button" id="record-slideshow-prev"></button>
+          <button class="action-button secondary" type="button" id="record-slideshow-next"></button>
+          <button class="action-button secondary" type="button" id="record-slideshow-close"></button>
+        </div>
+      </div>
+
+      <div class="record-slideshow-body">
+        <figure class="record-slideshow-figure">
+          <img class="record-slideshow-image" id="record-slideshow-image" alt="" />
+        </figure>
+
+        <div class="record-slideshow-copy">
+          <div class="record-slideshow-meta" id="record-slideshow-meta"></div>
+          <h2 class="record-slideshow-title" id="record-slideshow-title"></h2>
+          <div class="record-slideshow-note" id="record-slideshow-note"></div>
+          <div class="record-slideshow-background" id="record-slideshow-background" hidden>
+            <p class="record-slideshow-background-title" id="record-slideshow-background-title"></p>
+            <div id="record-slideshow-background-copy"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="/data/travel-record.js?v=20260510e"></script>
+  <script src="/scripts/record-app.js?v=20260510e"></script>
 </body>
 </html>

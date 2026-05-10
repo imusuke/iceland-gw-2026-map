@@ -20,6 +20,10 @@ body {
   font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
 }
 
+body.record-slideshow-open {
+  overflow: hidden;
+}
+
 .record-shell {
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
@@ -43,6 +47,12 @@ body {
 .record-hero {
   display: grid;
   gap: 20px;
+}
+
+.record-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .record-day-jumps {
@@ -147,6 +157,10 @@ body {
   height: 100%;
   position: relative;
   overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
 }
 
 .record-card-figure-link::before {
@@ -228,12 +242,6 @@ body {
   line-height: 1.6;
 }
 
-.record-card-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
 .record-link {
   display: inline-flex;
   align-items: center;
@@ -250,6 +258,147 @@ body {
 
 .record-link:hover {
   background: rgba(15, 95, 85, 0.12);
+}
+
+.record-slideshow {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.record-slideshow-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 33, 31, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.record-slideshow-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(1180px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  background: rgba(248, 250, 247, 0.96);
+  box-shadow: 0 30px 80px rgba(8, 20, 18, 0.28);
+}
+
+.record-slideshow-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.record-slideshow-toolbar-copy {
+  display: grid;
+  gap: 6px;
+}
+
+.record-slideshow-kicker,
+.record-slideshow-counter {
+  margin: 0;
+  color: var(--record-accent);
+  font-weight: 800;
+}
+
+.record-slideshow-counter {
+  font-size: 0.92rem;
+}
+
+.record-slideshow-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.record-slideshow-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.9fr);
+  gap: 18px;
+  min-height: 0;
+}
+
+.record-slideshow-figure {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  margin: 0;
+  padding: 16px;
+  overflow: hidden;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top, rgba(173, 219, 208, 0.35), transparent 42%),
+    linear-gradient(180deg, rgba(238, 244, 242, 0.98), rgba(223, 233, 229, 0.98));
+}
+
+.record-slideshow-image {
+  display: block;
+  max-width: 100%;
+  max-height: min(72vh, 760px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 18px;
+  box-shadow: 0 16px 36px rgba(18, 53, 48, 0.16);
+}
+
+.record-slideshow-copy {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-height: 0;
+  padding: 4px 4px 4px 0;
+  overflow-y: auto;
+}
+
+.record-slideshow-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.record-slideshow-title {
+  margin: 0;
+  font-size: clamp(1.28rem, 2vw, 1.8rem);
+  line-height: 1.34;
+}
+
+.record-slideshow-note,
+.record-slideshow-background {
+  color: var(--record-muted);
+  line-height: 1.84;
+}
+
+.record-slideshow-note strong,
+.record-slideshow-background strong {
+  color: var(--record-text);
+  font-weight: 800;
+}
+
+.record-slideshow-background {
+  display: grid;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(19, 54, 49, 0.1);
+}
+
+.record-slideshow-background-title {
+  margin: 0;
+  color: var(--record-accent);
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
 }
 
 @media (max-width: 920px) {
@@ -271,6 +420,20 @@ body {
 
   .record-card-figure {
     height: 280px;
+  }
+
+  .record-slideshow-dialog {
+    width: min(100vw - 24px, 1040px);
+    max-height: calc(100vh - 24px);
+  }
+
+  .record-slideshow-body {
+    grid-template-columns: 1fr;
+  }
+
+  .record-slideshow-copy {
+    max-height: 34vh;
+    padding-right: 4px;
   }
 }
 
@@ -296,7 +459,8 @@ body {
     gap: 10px;
   }
 
-  .page-nav .action-button {
+  .page-nav .action-button,
+  .record-hero-actions .action-button {
     width: 100%;
     min-width: 0;
     padding: 0 12px;
@@ -363,6 +527,56 @@ body {
     font-size: 0.96rem;
     line-height: 1.74;
   }
+
+  .record-slideshow {
+    padding: 10px;
+  }
+
+  .record-slideshow-dialog {
+    width: calc(100vw - 20px);
+    max-height: calc(100vh - 20px);
+    gap: 12px;
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .record-slideshow-toolbar {
+    gap: 12px;
+  }
+
+  .record-slideshow-toolbar-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .record-slideshow-toolbar-actions .action-button {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 0;
+  }
+
+  .record-slideshow-figure {
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .record-slideshow-image {
+    max-height: min(44vh, 420px);
+  }
+
+  .record-slideshow-copy {
+    gap: 12px;
+    max-height: none;
+  }
+
+  .record-slideshow-title {
+    font-size: 1.14rem;
+  }
+
+  .record-slideshow-note,
+  .record-slideshow-background {
+    font-size: 0.95rem;
+    line-height: 1.72;
+  }
 }
 
 @media (max-width: 640px) {
@@ -383,29 +597,18 @@ body {
   }
 
   .hero-meta {
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 8px;
+  }
+
+  .record-day-title {
+    font-size: clamp(1.3rem, 7vw, 1.72rem);
   }
 
   .record-card-title {
     min-height: 0;
     font-size: 1.04rem;
-  }
-
-  .record-card-links {
-    flex-direction: column;
-  }
-
-  .record-link {
-    width: 100%;
-  }
-
-  .hero-meta {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  .record-day-title {
-    font-size: clamp(1.3rem, 7vw, 1.72rem);
   }
 
   .record-card-meta {
@@ -421,5 +624,14 @@ body {
 
   .record-card-time {
     min-width: 64px;
+  }
+
+  .record-slideshow-toolbar-actions .action-button {
+    flex-basis: 100%;
+  }
+
+  .record-slideshow-kicker,
+  .record-slideshow-counter {
+    font-size: 0.88rem;
   }
 }

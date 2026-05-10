@@ -1,7 +1,7 @@
 (function () {
   const recordData = window.ICELAND_TRAVEL_RECORD;
   if (!recordData || !Array.isArray(recordData.days)) {
-    throw new Error("旅の実記録データが見つかりません。");
+    throw new Error("旅の実記録データを読み込めませんでした。");
   }
 
   const ui = {
@@ -21,7 +21,19 @@
     photoSuffix: " \u679a\u306e\u8a18\u9332",
     noteFallback: "\u3053\u306e\u5199\u771f\u306b\u306f\u307e\u3060\u500b\u5225\u30b3\u30e1\u30f3\u30c8\u304c\u3042\u308a\u307e\u305b\u3093\u3002",
     backgroundLabel: "\u80cc\u666f\u30e1\u30e2",
-    photosUnit: "\u679a"
+    photosUnit: "\u679a",
+    slideshowOpen: "\u30b9\u30e9\u30a4\u30c9\u30b7\u30e7\u30fc\u3067\u898b\u308b",
+    slideshowPrev: "\u524d\u3078",
+    slideshowNext: "\u6b21\u3078",
+    slideshowClose: "\u9589\u3058\u308b",
+    slideshowCounter: "{current} / {total}",
+    slideshowDayPrefix: "\u64ae\u5f71\u65e5 ",
+    slideshowUnavailable: "\u5199\u771f\u304c\u3042\u308a\u307e\u305b\u3093\u3002"
+  };
+
+  const state = {
+    entries: [],
+    activeSlideIndex: 0
   };
 
   const elements = {
@@ -39,7 +51,21 @@
     navMap: document.getElementById("record-nav-map"),
     navSpots: document.getElementById("record-nav-spots"),
     navHistory: document.getElementById("record-nav-history"),
-    navRecord: document.getElementById("record-nav-record")
+    navRecord: document.getElementById("record-nav-record"),
+    openSlideshow: document.getElementById("record-open-slideshow"),
+    slideshow: document.getElementById("record-slideshow"),
+    slideshowKicker: document.getElementById("record-slideshow-kicker"),
+    slideshowCounter: document.getElementById("record-slideshow-counter"),
+    slideshowPrev: document.getElementById("record-slideshow-prev"),
+    slideshowNext: document.getElementById("record-slideshow-next"),
+    slideshowClose: document.getElementById("record-slideshow-close"),
+    slideshowImage: document.getElementById("record-slideshow-image"),
+    slideshowMeta: document.getElementById("record-slideshow-meta"),
+    slideshowTitle: document.getElementById("record-slideshow-title"),
+    slideshowNote: document.getElementById("record-slideshow-note"),
+    slideshowBackground: document.getElementById("record-slideshow-background"),
+    slideshowBackgroundTitle: document.getElementById("record-slideshow-background-title"),
+    slideshowBackgroundCopy: document.getElementById("record-slideshow-background-copy")
   };
 
   function createElement(tagName, className, textContent) {
@@ -57,6 +83,12 @@
     const link = createElement("a", className, textContent);
     link.href = href;
     return link;
+  }
+
+  function clearElement(target) {
+    while (target.firstChild) {
+      target.removeChild(target.firstChild);
+    }
   }
 
   function appendInlineMarkdown(target, text) {
@@ -91,6 +123,11 @@
     });
   }
 
+  function fillRichText(target, text) {
+    clearElement(target);
+    appendRichText(target, text);
+  }
+
   function parseVariant(filename) {
     const match = filename.match(/(?:\.(PANO|MP))?\.(jpg|jpeg|png|webp)$/i);
     const variant = match && match[1] ? match[1].toUpperCase() : "PHOTO";
@@ -115,6 +152,10 @@
     elements.navSpots.textContent = ui.navSpots;
     elements.navHistory.textContent = ui.navHistory;
     elements.navRecord.textContent = ui.navRecord;
+    elements.openSlideshow.textContent = ui.slideshowOpen;
+    elements.slideshowPrev.textContent = ui.slideshowPrev;
+    elements.slideshowNext.textContent = ui.slideshowNext;
+    elements.slideshowClose.textContent = ui.slideshowClose;
   }
 
   function renderDayJump(day) {
@@ -122,28 +163,61 @@
     elements.recordDayJumps.append(link);
   }
 
-  function renderEntry(entry) {
+  function renderMetaChips(target, entry) {
+    if (entry.time) {
+      target.append(createElement("span", "record-card-time", entry.time));
+    }
+    target.append(createElement("span", "record-card-category", parseVariant(entry.filename || entry.image)));
+  }
+
+  function openSlideshow(index) {
+    if (!state.entries.length) {
+      return;
+    }
+
+    renderSlideshow(index);
+    elements.slideshow.hidden = false;
+    elements.slideshow.setAttribute("aria-hidden", "false");
+    document.body.classList.add("record-slideshow-open");
+    elements.slideshowClose.focus();
+  }
+
+  function closeSlideshow() {
+    elements.slideshow.hidden = true;
+    elements.slideshow.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("record-slideshow-open");
+  }
+
+  function moveSlideshow(delta) {
+    const nextIndex = state.activeSlideIndex + delta;
+    if (nextIndex < 0 || nextIndex >= state.entries.length) {
+      return;
+    }
+    renderSlideshow(nextIndex);
+  }
+
+  function renderEntry(entry, slideIndex) {
     const article = createElement("article", "record-card");
 
     const figure = createElement("figure", "record-card-figure");
-    const figureLink = createLink("record-card-figure-link", entry.image, "");
-    figureLink.target = "_blank";
-    figureLink.rel = "noreferrer";
-    figureLink.style.setProperty("--record-thumb-image", `url("${entry.image}")`);
+    const figureButton = createElement("button", "record-card-figure-link");
+    figureButton.type = "button";
+    figureButton.style.setProperty("--record-thumb-image", `url("${entry.image}")`);
+    figureButton.setAttribute("aria-label", `${entry.title || ui.navRecord} ${ui.slideshowOpen}`);
+    figureButton.addEventListener("click", () => {
+      openSlideshow(slideIndex);
+    });
 
     const image = createElement("img", "record-card-image");
     image.src = entry.image;
     image.alt = entry.imageAlt || entry.title;
     image.loading = "lazy";
     image.decoding = "async";
-    figureLink.append(image);
-    figure.append(figureLink);
+    figureButton.append(image);
+    figure.append(figureButton);
 
     const meta = createElement("div", "record-card-meta");
-    if (entry.time) {
-      meta.append(createElement("span", "record-card-time", entry.time));
-    }
-    meta.append(createElement("span", "record-card-category", parseVariant(entry.filename || entry.image)));
+    renderMetaChips(meta, entry);
 
     const title = createElement("h3", "record-card-title", entry.title || ui.navRecord);
     const body = createElement("div", "record-card-body");
@@ -177,11 +251,91 @@
 
     const grid = createElement("div", "record-entry-grid");
     day.entries.forEach((entry) => {
-      grid.append(renderEntry(entry));
+      const slideEntry = {
+        ...entry,
+        dayId: day.id,
+        dayLabel: day.label,
+        dayDate: day.date,
+        dayTitle: day.title
+      };
+      const slideIndex = state.entries.push(slideEntry) - 1;
+      grid.append(renderEntry(slideEntry, slideIndex));
     });
 
     section.append(header, grid);
     elements.recordDays.append(section);
+  }
+
+  function renderSlideshow(index) {
+    const entry = state.entries[index];
+    if (!entry) {
+      return;
+    }
+
+    state.activeSlideIndex = index;
+    elements.slideshowKicker.textContent = `${ui.slideshowDayPrefix}${entry.dayLabel} ${entry.dayDate}`;
+    elements.slideshowCounter.textContent = ui.slideshowCounter
+      .replace("{current}", String(index + 1))
+      .replace("{total}", String(state.entries.length));
+    elements.slideshowImage.src = entry.image;
+    elements.slideshowImage.alt = entry.imageAlt || entry.title || ui.slideshowUnavailable;
+    elements.slideshowTitle.textContent = entry.title || ui.navRecord;
+
+    clearElement(elements.slideshowMeta);
+    renderMetaChips(elements.slideshowMeta, entry);
+
+    fillRichText(elements.slideshowNote, entry.note || ui.noteFallback);
+
+    if (entry.background) {
+      elements.slideshowBackground.hidden = false;
+      elements.slideshowBackgroundTitle.textContent = ui.backgroundLabel;
+      fillRichText(elements.slideshowBackgroundCopy, entry.background);
+    } else {
+      elements.slideshowBackground.hidden = true;
+      clearElement(elements.slideshowBackgroundCopy);
+    }
+
+    elements.slideshowPrev.disabled = index <= 0;
+    elements.slideshowNext.disabled = index >= state.entries.length - 1;
+  }
+
+  function bindSlideshowEvents() {
+    elements.openSlideshow.addEventListener("click", () => {
+      openSlideshow(0);
+    });
+
+    elements.slideshowPrev.addEventListener("click", () => {
+      moveSlideshow(-1);
+    });
+
+    elements.slideshowNext.addEventListener("click", () => {
+      moveSlideshow(1);
+    });
+
+    elements.slideshowClose.addEventListener("click", closeSlideshow);
+
+    elements.slideshow.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+      if (target.dataset.recordClose === "true") {
+        closeSlideshow();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (elements.slideshow.hidden) {
+        return;
+      }
+      if (event.key === "Escape") {
+        closeSlideshow();
+      } else if (event.key === "ArrowLeft") {
+        moveSlideshow(-1);
+      } else if (event.key === "ArrowRight") {
+        moveSlideshow(1);
+      }
+    });
   }
 
   function init() {
@@ -196,6 +350,9 @@
       renderDayJump(day);
       renderDay(day);
     });
+
+    elements.openSlideshow.disabled = state.entries.length === 0;
+    bindSlideshowEvents();
   }
 
   init();
