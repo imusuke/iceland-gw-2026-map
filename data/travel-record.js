@@ -364,7 +364,7 @@ window.ICELAND_TRAVEL_RECORD = {
           "title": "Glj\u00fafrab\u00fai\uff08\u30b0\u30ea\u30e5\u30fc\u30d5\u30e9\u30d6\u30fc\u30a4\uff0f\u96a0\u308c\u6edd\uff09\u3078\u306e\u5165\u308a\u53e3",
           "image": "/assets/record/PXL_20260504_132820351.jpg",
           "imageAlt": "5\u65e5\u76ee Glj\u00fafrab\u00fai\uff08\u30b0\u30ea\u30e5\u30fc\u30d5\u30e9\u30d6\u30fc\u30a4\uff0f\u96a0\u308c\u6edd\uff09\u3078\u306e\u5165\u308a\u53e3",
-          "note": "**裂け目の中、いむが大岩の上に立ち、頭上から多筋の水が降り注ぐ**。両側の崖、頂上の青空が円窓状に開く、**まるで天井のない大聖堂のような空間**。今日のハイライトのもう一枚。映画的な縦構図。",
+          "note": "**裂け目の中、ともちゃんが大岩の上に立ち、頭上から多筋の水が降り注ぐ**。両側の崖、頂上の青空が円窓状に開く、**まるで天井のない大聖堂のような空間**。今日のハイライトのもう一枚。映画的な縦構図。",
           "background": "\u3053\u3053\u306f **\u300c\u5929\u7136\u306e\u4e95\u6238\u300d**\u3001\u76f4\u5f84\u7d0410m\u3001\u6df1\u305540m\u3002\u6edd\u306e\u4e3b\u6d41\u306e\u4ed6\u306b **\u4e21\u5074\u304b\u3089\u8907\u6570\u306e\u7d30\u6d41** \u304c\u5d29\u843d\u3059\u308b\u5730\u5f62\u306f\u4e16\u754c\u3067\u3082\u7a00\u3002**\u300eJustice League\u300f(2017)** \u3084\u97f3\u697d PV \u306e\u30ed\u30b1\u5730\u3068\u3057\u3066\u8fd1\u5e74\u6ce8\u76ee\u5ea6\u6025\u4e0a\u6607\u3002",
           "filename": "PXL_20260504_132820351.jpg"
         },
