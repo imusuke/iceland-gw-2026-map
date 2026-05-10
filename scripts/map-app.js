@@ -6,6 +6,7 @@
 
   const shared = window.ICELAND_TRIP_SHARED || {};
   const journalUi = window.ICELAND_TRIP_JOURNAL_UI || {};
+  const seededJournalEntries = window.ICELAND_TRIP_JOURNAL_SEED || {};
   const routeStops = tripData.routeStops;
   const itineraryStart = new Date(tripData.itineraryStart);
   const itineraryEnd = new Date(tripData.itineraryEnd);
@@ -47,6 +48,7 @@
     stepCurrentMeta: document.getElementById("step-current-meta"),
     stepCurrentTravel: document.getElementById("step-current-travel"),
     stepCurrentNote: document.getElementById("step-current-note"),
+    stepCurrentThumbs: document.getElementById("step-current-thumbs"),
     stepDetailToggle: document.getElementById("step-detail-toggle"),
     stepJournalButton: document.getElementById("step-journal-button"),
     stepPrevButton: document.getElementById("step-prev-button"),
@@ -257,6 +259,100 @@
     }
 
     return `${usesCompactControls() ? "前区間" : "前の区間"} ${stop.distanceFromPrev}${stop.driveTimeFromPrev ? ` / ${stop.driveTimeFromPrev}` : ""}`;
+  }
+
+  function getGuidePhotoEntries(stop, index, limit = Infinity) {
+    const spotId = buildSpotId(index, stop);
+    const rawEntries = Array.isArray(seededJournalEntries[spotId]) ? seededJournalEntries[spotId] : [];
+    const seen = new Set();
+    const uniqueEntries = [];
+
+    rawEntries
+      .filter((entry) => entry && typeof entry.photoUrl === "string" && entry.photoUrl)
+      .slice()
+      .sort((left, right) => {
+        const leftTime = new Date(left.visitedAt || left.uploadedAt || 0).getTime();
+        const rightTime = new Date(right.visitedAt || right.uploadedAt || 0).getTime();
+        return leftTime - rightTime;
+      })
+      .forEach((entry) => {
+        const key = String(entry.photoName || entry.photoUrl || "");
+        if (!key || seen.has(key)) {
+          return;
+        }
+
+        seen.add(key);
+        uniqueEntries.push(entry);
+      });
+
+    return Number.isFinite(limit) ? uniqueEntries.slice(0, limit) : uniqueEntries;
+  }
+
+  function buildGuideThumbsSectionHtml(stop, index) {
+    const previewEntries = getGuidePhotoEntries(stop, index, 4);
+    if (previewEntries.length === 0) {
+      return "";
+    }
+
+    const totalEntries = getGuidePhotoEntries(stop, index).length;
+    const moreCount = Math.max(0, totalEntries - previewEntries.length);
+    const thumbsHtml = previewEntries.map((entry, entryIndex) => {
+      return `<img class="map-guide-thumb" src="${entry.photoUrl}" alt="${stop.name} の旅写真 ${entryIndex + 1}" loading="lazy" decoding="async" />`;
+    }).join("");
+    const moreHtml = moreCount > 0
+      ? `<span class="map-guide-thumb-more" aria-label="ほか ${moreCount} 枚">+${moreCount}</span>`
+      : "";
+
+    return `
+      <section class="map-tooltip-thumbs-section" aria-label="このスポットの旅写真">
+        <p class="map-tooltip-thumbs-label">旅の写真</p>
+        <div class="map-tooltip-thumbs">${thumbsHtml}${moreHtml}</div>
+      </section>
+    `;
+  }
+
+  function renderStepThumbs(stop, index) {
+    const container = elements.stepCurrentThumbs;
+    if (!container) {
+      return;
+    }
+
+    const previewEntries = getGuidePhotoEntries(stop, index, usesCompactControls() ? 3 : 4);
+    if (previewEntries.length === 0) {
+      container.replaceChildren();
+      container.classList.add("hidden");
+      return;
+    }
+
+    const totalEntries = getGuidePhotoEntries(stop, index).length;
+    const label = document.createElement("span");
+    label.className = "step-current-thumbs-label";
+    label.textContent = "旅の写真";
+
+    const strip = document.createElement("div");
+    strip.className = "step-current-thumbs-strip";
+
+    previewEntries.forEach((entry, entryIndex) => {
+      const image = document.createElement("img");
+      image.className = "step-current-thumb";
+      image.src = entry.photoUrl;
+      image.alt = `${stop.name} の旅写真 ${entryIndex + 1}`;
+      image.loading = "lazy";
+      image.decoding = "async";
+      strip.append(image);
+    });
+
+    const moreCount = Math.max(0, totalEntries - previewEntries.length);
+    if (moreCount > 0) {
+      const more = document.createElement("span");
+      more.className = "step-current-thumb-more";
+      more.textContent = `+${moreCount}`;
+      more.setAttribute("aria-label", `ほか ${moreCount} 枚`);
+      strip.append(more);
+    }
+
+    container.replaceChildren(label, strip);
+    container.classList.remove("hidden");
   }
 
   function buildStepNoteText(stop) {
@@ -620,6 +716,7 @@
   function buildTooltipHtml(stop, index) {
     const imageClass = stop.photoUrl ? "map-tooltip-photo" : "map-tooltip-photo empty";
     const imageHtml = `<img class="${imageClass}" src="${stop.photoUrl || ""}" alt="${stop.name} の写真" />`;
+    const thumbsHtml = buildGuideThumbsSectionHtml(stop, index);
     const timeline = buildTimelineMeta(stop);
     const timelineTicks = compactTicks(buildTimelineTicks(), 5);
     const distanceMeta = buildDistanceMeta(index);
@@ -727,6 +824,7 @@
       '<div class="map-tooltip-copy">',
       `<p class="map-tooltip-summary">${stop.note}</p>`,
       `<p class="map-tooltip-detail">${stop.stepHtml || stop.note}</p>`,
+      thumbsHtml,
       '</div>',
       '</div>',
       `<div class="map-tooltip-meta-grid">${timeHtml}${distanceHtml}</div>`,
@@ -1159,6 +1257,7 @@
     elements.stepCurrentMeta.textContent = buildStepMetaText(currentStop);
     elements.stepCurrentTravel.textContent = buildStepTravelText(currentStop);
     elements.stepCurrentNote.textContent = buildStepNoteText(currentStop);
+    renderStepThumbs(currentStop, state.currentStepIndex);
     elements.stepDetailToggle.textContent = getStepDetailToggleLabel();
     elements.stepPrevButton.disabled = state.currentStepIndex <= 0;
     elements.stepNextButton.disabled = state.currentStepIndex >= routeStops.length - 1;

@@ -440,6 +440,61 @@ body {
   overflow: hidden;
 }
 
+.step-current-thumbs {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.step-current-thumbs-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.step-current-thumbs-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.step-current-thumbs-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.step-current-thumb,
+.step-current-thumb-more {
+  flex: 0 0 auto;
+  width: 54px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.step-current-thumb {
+  display: block;
+  object-fit: cover;
+  border: 1px solid rgba(21, 94, 117, 0.12);
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.step-current-thumb-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 800;
+  border: 1px solid rgba(21, 94, 117, 0.12);
+  background: rgba(14, 116, 144, 0.08);
+}
+
 .step-nav-buttons {
   display: flex;
   gap: 8px;
@@ -801,6 +856,62 @@ body {
   margin-bottom: 0;
 }
 
+.map-tooltip-thumbs-section {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.map-tooltip-thumbs-label {
+  margin: 0;
+  color: var(--accent-strong);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.map-tooltip-thumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.map-tooltip-thumbs::-webkit-scrollbar {
+  display: none;
+}
+
+.map-guide-thumb,
+.map-guide-thumb-more {
+  flex: 0 0 auto;
+  width: 64px;
+  height: 48px;
+  border-radius: 12px;
+}
+
+.map-guide-thumb {
+  display: block;
+  object-fit: cover;
+  border: 1px solid rgba(21, 94, 117, 0.12);
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.map-guide-thumb-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-strong);
+  font-size: 0.82rem;
+  font-weight: 800;
+  border: 1px solid rgba(21, 94, 117, 0.12);
+  background: rgba(14, 116, 144, 0.08);
+}
+
 .map-tooltip-meta-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1136,6 +1247,13 @@ body {
     padding: 3px 8px;
   }
 
+  .step-current-thumb,
+  .step-current-thumb-more {
+    width: 46px;
+    height: 34px;
+    border-radius: 8px;
+  }
+
   .step-detail-toggle,
   .step-journal-toggle {
     min-height: 32px;
@@ -1158,5 +1276,12 @@ body {
   .map-tooltip-detail {
     font-size: 0.8rem;
     line-height: 1.42;
+  }
+
+  .map-guide-thumb,
+  .map-guide-thumb-more {
+    width: 56px;
+    height: 42px;
+    border-radius: 10px;
   }
 }
