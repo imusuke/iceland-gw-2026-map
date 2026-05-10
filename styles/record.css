@@ -290,6 +290,7 @@ body.record-slideshow-open {
   width: min(1180px, calc(100vw - 32px));
   max-height: calc(100vh - 32px);
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 16px;
   padding: 18px 84px;
   overflow: hidden;
@@ -366,8 +367,10 @@ body.record-slideshow-open {
 .record-slideshow-body {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.9fr);
+  align-items: stretch;
   gap: 18px;
   min-height: 0;
+  overflow: hidden;
 }
 
 .record-slideshow-figure {
@@ -397,10 +400,13 @@ body.record-slideshow-open {
 .record-slideshow-copy {
   display: grid;
   align-content: start;
+  grid-auto-rows: max-content;
   gap: 14px;
   min-height: 0;
-  padding: 4px 4px 4px 0;
+  padding: 4px 10px 4px 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .record-slideshow-meta {
@@ -623,7 +629,8 @@ body.record-slideshow-open {
 
   .record-slideshow-copy {
     gap: 12px;
-    max-height: none;
+    max-height: min(34vh, 300px);
+    padding-right: 2px;
   }
 
   .record-slideshow-title {
