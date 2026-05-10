@@ -129,6 +129,7 @@
     const figureLink = createLink("record-card-figure-link", entry.image, "");
     figureLink.target = "_blank";
     figureLink.rel = "noreferrer";
+    figureLink.style.setProperty("--record-thumb-image", `url("${entry.image}")`);
 
     const image = createElement("img", "record-card-image");
     image.src = entry.image;
