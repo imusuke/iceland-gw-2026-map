@@ -291,7 +291,7 @@ body.record-slideshow-open {
   max-height: calc(100vh - 32px);
   display: grid;
   gap: 16px;
-  padding: 18px;
+  padding: 18px 84px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 24px;
@@ -304,6 +304,7 @@ body.record-slideshow-open {
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+  padding-right: 8px;
 }
 
 .record-slideshow-toolbar-copy {
@@ -333,6 +334,33 @@ body.record-slideshow-open {
 .record-hero-actions .action-button {
   appearance: none;
   -webkit-appearance: none;
+}
+
+#record-slideshow-prev,
+#record-slideshow-next {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  width: 56px;
+  min-width: 56px;
+  min-height: 56px;
+  padding: 0;
+  border: 1px solid rgba(19, 54, 49, 0.14);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 16px 30px rgba(18, 53, 48, 0.18);
+  transform: translateY(-50%);
+}
+
+#record-slideshow-prev {
+  left: 18px;
+}
+
+#record-slideshow-next {
+  right: 18px;
+}
+
+#record-slideshow-close {
+  min-width: 96px;
 }
 
 .record-slideshow-body {
@@ -439,6 +467,8 @@ body.record-slideshow-open {
   .record-slideshow-dialog {
     width: min(100vw - 24px, 1040px);
     max-height: calc(100vh - 24px);
+    padding-left: 72px;
+    padding-right: 72px;
   }
 
   .record-slideshow-body {
@@ -565,6 +595,20 @@ body.record-slideshow-open {
 
   .record-slideshow-toolbar-actions .action-button {
     flex: 1 1 calc(50% - 6px);
+    min-width: 0;
+  }
+
+  #record-slideshow-prev,
+  #record-slideshow-next {
+    position: static;
+    width: auto;
+    min-width: 0;
+    min-height: 42px;
+    transform: none;
+    box-shadow: none;
+  }
+
+  #record-slideshow-close {
     min-width: 0;
   }
 
