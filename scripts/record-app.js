@@ -204,9 +204,8 @@
     figureButton.type = "button";
     figureButton.style.setProperty("--record-thumb-image", `url("${entry.image}")`);
     figureButton.setAttribute("aria-label", `${entry.title || ui.navRecord} ${ui.slideshowOpen}`);
-    figureButton.addEventListener("click", () => {
-      openSlideshow(slideIndex);
-    });
+    figureButton.dataset.recordAction = "open-slide";
+    figureButton.dataset.slideIndex = String(slideIndex);
 
     const image = createElement("img", "record-card-image");
     image.src = entry.image;
@@ -300,25 +299,38 @@
   }
 
   function bindSlideshowEvents() {
-    elements.openSlideshow.addEventListener("click", () => {
-      openSlideshow(0);
-    });
-
-    elements.slideshowPrev.addEventListener("click", () => {
-      moveSlideshow(-1);
-    });
-
-    elements.slideshowNext.addEventListener("click", () => {
-      moveSlideshow(1);
-    });
-
-    elements.slideshowClose.addEventListener("click", closeSlideshow);
-
-    elements.slideshow.addEventListener("click", (event) => {
+    document.addEventListener("click", (event) => {
       const target = event.target;
       if (!(target instanceof HTMLElement)) {
         return;
       }
+
+      const actionElement = target.closest("[data-record-action]");
+      if (actionElement instanceof HTMLElement) {
+        const action = actionElement.dataset.recordAction;
+        if (action === "open-slideshow") {
+          openSlideshow(0);
+          return;
+        }
+        if (action === "open-slide") {
+          const slideIndex = Number(actionElement.dataset.slideIndex || "0");
+          openSlideshow(Number.isFinite(slideIndex) ? slideIndex : 0);
+          return;
+        }
+        if (action === "prev-slide") {
+          moveSlideshow(-1);
+          return;
+        }
+        if (action === "next-slide") {
+          moveSlideshow(1);
+          return;
+        }
+        if (action === "close-slideshow") {
+          closeSlideshow();
+          return;
+        }
+      }
+
       if (target.dataset.recordClose === "true") {
         closeSlideshow();
       }

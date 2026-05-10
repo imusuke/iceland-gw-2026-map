@@ -161,6 +161,8 @@ body.record-slideshow-open {
   border: 0;
   background: transparent;
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .record-card-figure-link::before {
@@ -173,6 +175,7 @@ body.record-slideshow-open {
   filter: blur(18px) saturate(0.9);
   opacity: 0.42;
   transform: scale(1.08);
+  pointer-events: none;
 }
 
 .record-card-figure-link::after {
@@ -319,6 +322,12 @@ body.record-slideshow-open {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 10px;
+}
+
+.record-slideshow-toolbar-actions .action-button,
+.record-hero-actions .action-button {
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .record-slideshow-body {
