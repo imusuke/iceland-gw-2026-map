@@ -734,15 +734,10 @@
     const previousDistance = stop.distanceFromPrev
       ? `前のスポットから ${stop.distanceFromPrev}${stop.driveTimeFromPrev ? ` / ${stop.driveTimeFromPrev}` : ""}`
       : "旅のスタート地点";
-    const nextStop = routeStops[index + 1];
-    const nextDistance = nextStop && nextStop.distanceFromPrev
-      ? `次のスポットまで ${nextStop.distanceFromPrev}${nextStop.driveTimeFromPrev ? ` / ${nextStop.driveTimeFromPrev}` : ""}`
-      : "ここが最後のスポット";
     const distanceHtml = `
       <div class="map-tooltip-meta-block">
         <p class="map-tooltip-meta-label">移動の目安</p>
         <p class="map-tooltip-meta-value">${previousDistance}</p>
-        <p class="map-tooltip-meta-value">${nextDistance}</p>
       </div>
     `;
 
